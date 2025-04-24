@@ -1,0 +1,183 @@
+{% extends "panel/layout.html" %} {% block head %}
+
+<link rel="stylesheet" href="/datatables/css/datatables.min.css" />
+{% endblock %} {% block body %}
+
+<div class="d-flex justify-content-between align-items-center border-bottom pb-2">
+    <h1 class="heading my-auto">Categories</h1>
+    {% if showCreateUi %}
+    <button class="btn btn-success addCategoryButton" type="button">
+        <i class="fa-solid fa-plus"></i>
+        <span>Add New Category</span>
+    </button>
+    {% endif %}
+</div>
+
+<div class="table-responsive mt-3 text-nowrap">
+    <table class="table table-striped table-bordered" id="datatable">
+        <thead class="table-light">
+            <tr>
+                <td>Name</td>
+                <td>Actions</td>
+            </tr>
+        </thead>
+    </table>
+</div>
+
+{% if showCreateUi or showUpdateUi %}
+<div class="modal fade" id="categoryModal" tabindex="-1" aria-labelledby="categoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="categoryModalLabel"></h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="categoryForm" method="post">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label mb-0">Name</label>
+                        <div class="input-group">
+                            <input
+                                type="text"
+                                id="name"
+                                name="name"
+                                class="form-control"
+                                placeholder="Eg: Example"
+                                required />
+                            <span class="input-group-text iconDiv">
+                                <i class="fa-solid fa-layer-group"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %} {% endblock %} {% block javascript %}
+
+<script src="/datatables/js/datatables.min.js"></script>
+<script>
+    $(document).ready(function () {
+        let datatable = $("#datatable");
+        datatable.DataTable({
+            paging: true,
+            lengthChange: true,
+            lengthMenu: [10, 25, 50],
+            ordering: true,
+            processing: true,
+            searching: true,
+            serverSide: true,
+            searchDelay: 400,
+            pagingType: "full_numbers",
+            pageLength: 10,
+            responsive: true,
+            autoWidth: true,
+            info: true,
+            ajax: {
+                url: "/panel/category/all",
+                accepts: "application/json",
+                contentType: "application/json",
+                dataType: "json",
+                method: "GET",
+                dataSrc: {
+                    data: "data.data",
+                    draw: "data.draw",
+                    recordsTotal: "data.recordsTotal",
+                    recordsFiltered: "data.recordsFiltered",
+                },
+            },
+            columns: [
+                { data: "name" },
+                {
+                    data: function (row) {
+                        let showUpdateUi = "{{showUpdateUi}}";
+                        let showDeleteUi = "{{showDeleteUi}}";
+
+                        let updateUiBtn = `
+                        <button class="btn btn-sm btn-primary editCategoryButton" data-category-id=${row._id}>
+                            <i class="fa-solid fa-pen"></i>
+                            <span>Edit</span>
+                        </button>
+                        `;
+
+                        let deleteUiBtn = `
+                        <button class="btn btn-sm btn-danger deleteCategoryButton" data-category-id=${row._id}>
+                            <i class="fa-solid fa-trash"></i>
+                            <span>Delete</span>
+                        </button>
+                        `;
+
+                        return `
+                        <div class="d-flex gap-2">
+                            ${showUpdateUi === "true" && !row.isAdmin ? updateUiBtn : ""}
+                            ${showDeleteUi === "true" && !row.isAdmin ? deleteUiBtn : ""}
+                        </div>`;
+                    },
+                    orderable: false,
+                },
+            ],
+        });
+
+        let categoryModal = $("#categoryModal");
+        let roleSelect = $("#roles");
+
+        $(".addCategoryButton").on("click", function () {
+            $(categoryModal).find("#categoryModalLabel").text("Add Category Details");
+            $(categoryModal).find("#categoryForm").attr("action", "/panel/category");
+            categoryModal.modal("show");
+        });
+
+        $(categoryModal).on("hide.bs.modal", function () {
+            $(categoryModal).find("#categoryModalLabel").text("");
+            $(categoryModal).find("#categoryForm").attr("action", "");
+            $(categoryModal).find("#categoryForm")[0].reset();
+            roleSelect.val("").trigger("change");
+        });
+
+        $("#datatable").on("click", ".editCategoryButton", function (e) {
+            e.preventDefault();
+            let categoryId = $(this).data("category-id");
+            if (!categoryId) {
+                return;
+            }
+
+            $.ajax(`/panel/category/${categoryId}`, {
+                method: "GET",
+                headers: { "Content-Type": "application/json" },
+                dataType: "json",
+                success: (data, text, xhr) => {
+                    let category = data.data.category;
+                    $(categoryModal).find("#categoryForm").find("#name").val(category.name);
+
+                    $(categoryModal).find("#categoryModalLabel").text("Update Category Details");
+                    $(categoryModal).find("#categoryForm").attr("action", `/panel/category/update/${categoryId}`);
+                    $(categoryModal).modal("show");
+                },
+                error: (xhr, text) => {
+                    let data = xhr.responseJSON;
+                    toastr.error(data.error);
+                },
+            });
+        });
+
+        $("#datatable").on("click", ".deleteCategoryButton", function (e) {
+            e.preventDefault();
+            let categoryId = $(this).data("category-id");
+            if (!categoryId) {
+                return;
+            }
+
+            let confirmationModal = $("#confirmationModal");
+            $(confirmationModal).find("form").attr("action", `/panel/category/delete/${categoryId}`);
+            $(confirmationModal).attr("aria-hidden", false);
+            $(confirmationModal).modal("show");
+        });
+    });
+</script>
+
+{% endblock %}

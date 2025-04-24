@@ -1,0 +1,78 @@
+{% extends "panel/layout.html" %} {% block head %}
+<link rel="stylesheet" href="/datatables/css/datatables.min.css" />
+
+{% endblock %} {% block body %}
+<div class="d-flex justify-content-between align-items-center border-bottom pb-2">
+    <h1 class="heading my-auto">Ticket Verification Events</h1>
+</div>
+
+<div class="table-responsive mt-3 text-nowrap">
+    <table class="table table-striped table-bordered" id="datatable">
+        <thead class="table-light">
+            <tr>
+                <td>Event Name</td>
+                <td>Event Date</td>
+                <td>Actions</td>
+            </tr>
+        </thead>
+    </table>
+</div>
+
+{% endblock %} {% block javascript %}
+
+<script src="/datatables/js/datatables.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        let datatable = $("#datatable");
+        datatable.DataTable({
+            paging: true,
+            lengthChange: true,
+            lengthMenu: [10, 25, 50],
+            ordering: true,
+            processing: true,
+            searching: true,
+            serverSide: true,
+            searchDelay: 400,
+            pagingType: "full_numbers",
+            pageLength: 10,
+            responsive: true,
+            autoWidth: true,
+            info: true,
+            ajax: {
+                url: "/panel/verification/all",
+                accepts: "application/json",
+                contentType: "application/json",
+                dataType: "json",
+                method: "GET",
+                dataSrc: {
+                    data: "data.data",
+                    draw: "data.draw",
+                    recordsTotal: "data.recordsTotal",
+                    recordsFiltered: "data.recordsFiltered",
+                },
+            },
+            columns: [
+                { data: "name" },
+                { data: "dateTime" },
+                {
+                    data: function (row) {
+                        let verifyUiBtn = `
+                        <a class="btn btn-sm btn-primary" href="/panel/verification/${row._id}">
+                            <i class="fa-solid fa-eye"></i>
+                            <span>Verify</span>
+                        </a>
+                        `;
+
+                        return `
+                        <div class="d-flex gap-2">
+                            ${verifyUiBtn}
+                        </div>`;
+                    },
+                    orderable: false,
+                },
+            ],
+        });
+    });
+</script>
+{% endblock %}

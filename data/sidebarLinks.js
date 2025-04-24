@@ -1,0 +1,60 @@
+const sidebarLinks = [
+    {
+        name: "Dashboard",
+        href: "/panel",
+        icon: '<i class="fa-solid fa-gauge icon"></i>',
+        uniqueName: true,
+        isActive: false,
+        isAdmin: false,
+    },
+    {
+        name: "Clients",
+        href: "/panel/clients",
+        icon: '<i class="fa-solid fa-user icon"></i>',
+        uniqueName: ["read_client"],
+        isActive: false,
+        isAdmin: false,
+    },
+    {
+        name: "Categories",
+        href: "/panel/category",
+        icon: '<i class="fa-solid fa-layer-group icon"></i>',
+        uniqueName: ["read_category"],
+        isActive: false,
+        isAdmin: false,
+    },
+    {
+        name: "Events",
+        href: "/panel/events",
+        icon: '<i class="fa-solid fa-calendar-days icon"></i>',
+        uniqueName: ["read_event"],
+        isActive: false,
+        isAdmin: false,
+    },
+    {
+        name: "Verification",
+        href: "/panel/verification",
+        icon: '<i class="fa-solid fa-calendar-days icon"></i>',
+        uniqueName: ["verify_ticket"],
+        isActive: false,
+        isAdmin: false,
+    },
+    {
+        name: "Roles",
+        href: "/panel/roles",
+        icon: '<i class="fa-solid fa-user icon"></i>',
+        uniqueName: [],
+        isActive: false,
+        isAdmin: true,
+    },
+    {
+        name: "Panel Users",
+        href: "/panel/panel-users",
+        icon: '<i class="fa-solid fa-users icon"></i>',
+        uniqueName: ["read_panel_user"],
+        isActive: false,
+        isAdmin: false,
+    },
+];
+
+export default sidebarLinks;

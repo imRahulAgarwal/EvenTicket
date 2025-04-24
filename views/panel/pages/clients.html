@@ -1,0 +1,232 @@
+{% extends "panel/layout.html" %} {% block head %}
+<link rel="stylesheet" href="/datatables/css/datatables.min.css" />
+
+{% endblock %} {% block body %}
+
+<div class="d-flex justify-content-between align-items-center border-bottom pb-2">
+    <h1 class="heading my-auto">Clients</h1>
+    {% if showCreateUi %}
+    <button class="btn btn-success addClientButton" type="button">
+        <i class="fa-solid fa-plus"></i>
+        <span>Add New Client</span>
+    </button>
+    {% endif %}
+</div>
+
+<div class="table-responsive mt-3 text-nowrap">
+    <table class="table table-bordered table-striped text-center" id="datatable">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Contact Number</th>
+                <th>Joined At</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+    </table>
+</div>
+
+{% if showCreateUi or showUpdateUi %}
+<div class="modal fade" id="clientModal" tabindex="-1" aria-labelledby="clientModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="clientModalLabel"></h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="clientForm" method="post">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label mb-0">Client Name</label>
+                        <div class="input-group">
+                            <input
+                                type="text"
+                                id="name"
+                                name="name"
+                                class="form-control"
+                                placeholder="Eg: Example"
+                                required />
+                            <span class="input-group-text">
+                                <i class="fa-solid fa-user iconDiv"></i>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label mb-0">Client Email</label>
+                        <div class="input-group">
+                            <input
+                                type="email"
+                                id="email"
+                                name="email"
+                                class="form-control"
+                                placeholder="Eg: example@gmail.com"
+                                required />
+                            <span class="input-group-text">
+                                <i class="fa-solid fa-envelope iconDiv"></i>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label mb-0">Client Number</label>
+                        <div class="input-group">
+                            <input
+                                type="text"
+                                id="number"
+                                name="number"
+                                class="form-control"
+                                placeholder="Eg: 9876543210"
+                                required />
+                            <span class="input-group-text">
+                                <i class="fa-solid fa-phone iconDiv"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %} {% endblock %} {% block javascript %}
+<script src="/datatables/js/datatables.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        let datatable = $("#datatable");
+        datatable.DataTable({
+            paging: true,
+            lengthChange: true,
+            lengthMenu: [10, 25, 50],
+            ordering: true,
+            processing: true,
+            searching: true,
+            serverSide: true,
+            searchDelay: 400,
+            pagingType: "full_numbers",
+            pageLength: 10,
+            responsive: true,
+            autoWidth: true,
+            info: true,
+            ajax: {
+                url: "/panel/clients/all",
+                accepts: "application/json",
+                contentType: "application/json",
+                dataType: "json",
+                method: "GET",
+                dataSrc: {
+                    data: "data.data",
+                    draw: "data.draw",
+                    recordsTotal: "data.recordsTotal",
+                    recordsFiltered: "data.recordsFiltered",
+                },
+            },
+            columns: [
+                { data: "name" },
+                { data: "email", orderable: false },
+                { data: "number", orderable: false },
+                { data: "createdAt" },
+                {
+                    data: function (row) {
+                        let showReadUi = "{{showReadUi}}";
+                        let showUpdateUi = "{{showUpdateUi}}";
+                        let showDeleteUi = "{{showDeleteUi}}";
+
+                        let readUiBtn = `
+                        <a class="btn btn-sm btn-secondary" href="/panel/clients/s/${row._id}" data-client-id=${row._id}>
+                            <i class="fa-solid fa-eye"></i>
+                            <span>View</span>
+                        </a>
+                        `;
+
+                        let updateUiBtn = `
+                        <button class="btn btn-sm btn-primary editClientButton" data-client-id=${row._id}>
+                            <i class="fa-solid fa-pen"></i>
+                            <span>Edit</span>
+                        </button>
+                        `;
+
+                        let deleteUiBtn = `
+                        <button class="btn btn-sm btn-danger deleteClientButton" data-client-id=${row._id}>
+                            <i class="fa-solid fa-trash"></i>
+                            <span>Delete</span>
+                        </button>
+                        `;
+
+                        return `
+                        <div class="d-flex justify-content-center gap-2">
+                            ${showReadUi === "true" ? readUiBtn : ""}
+                            ${showUpdateUi === "true" ? updateUiBtn : ""}
+                            ${showDeleteUi === "true" ? deleteUiBtn : ""}
+                        </div>`;
+                    },
+                    orderable: false,
+                },
+            ],
+        });
+
+        const clientModal = $("#clientModal");
+
+        $(".addClientButton").on("click", function () {
+            $(clientModal).find("#clientModalLabel").text("Add Client Details");
+            $(clientModal).find("#clientForm").attr("action", "/panel/clients");
+            clientModal.modal("show");
+        });
+
+        $(clientModal).on("hide.bs.modal", function () {
+            $(clientModal).find("#clientModalLabel").text("");
+            $(clientModal).find("#clientForm").attr("action", "");
+            $(clientModal).find("#clientForm")[0].reset();
+        });
+
+        $(datatable).on("click", ".editClientButton", function (e) {
+            e.preventDefault();
+            let clientId = $(this).data("client-id");
+            if (!clientId) {
+                return;
+            }
+
+            $.ajax(`/panel/clients/${clientId}`, {
+                method: "GET",
+                headers: { "Content-Type": "application/json" },
+                dataType: "json",
+                success: (data, text, xhr) => {
+                    if (data.success) {
+                        let client = data.data.client;
+                        $(clientModal).find("#clientForm").find("#name").val(client.name);
+                        $(clientModal).find("#clientForm").find("#email").val(client.email);
+                        $(clientModal).find("#clientForm").find("#number").val(client.number);
+
+                        $(clientModal).find("#clientModalLabel").text("Update Client Details");
+                        $(clientModal).find("#clientForm").attr("action", `/panel/clients/update/${clientId}`);
+                        $(clientModal).modal("show");
+                    }
+                },
+                error: (xhr, text) => {
+                    let data = xhr.responseJSON;
+                    toastr.error(data.error);
+                },
+            });
+        });
+
+        $(datatable).on("click", ".deleteClientButton", function (e) {
+            e.preventDefault();
+            let clientId = $(this).data("client-id");
+            if (!clientId) {
+                return;
+            }
+
+            let confirmationModal = $("#confirmationModal");
+            $(confirmationModal).find("form").attr("action", `/panel/clients/delete/${clientId}`);
+            $(confirmationModal).attr("aria-hidden", false);
+            $(confirmationModal).modal("show");
+        });
+    });
+</script>
+
+{% endblock %}

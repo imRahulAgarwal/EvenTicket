@@ -1,0 +1,178 @@
+{% extends "panel/layout.html" %} {% block body %}
+<div class="d-flex justify-content-between align-items-center border-bottom pb-2">
+    <h1 class="heading my-auto">Update Event</h1>
+</div>
+
+<div class="mt-3">
+    <form id="updateEventForm">
+        <div class="mb-3">
+            <label for="eventName" class="form-label">Event Name</label>
+            <input
+                type="text"
+                class="form-control"
+                id="eventName"
+                name="eventName"
+                placeholder="Enter event name"
+                value="{{ event.name }}"
+                required />
+        </div>
+        <div class="mb-3">
+            <label for="eventDateTime" class="form-label">Event Date &amp; Time</label>
+            <input
+                type="datetime-local"
+                class="form-control"
+                id="eventDateTime"
+                name="eventDateTime"
+                value="{{ event.dateTime }}"
+                required />
+        </div>
+
+        <div class="mb-3">
+            <label for="categoryId" class="form-label">Category ID</label>
+            <select class="form-control" id="categoryId" name="categoryId" required></select>
+        </div>
+
+        <!-- Allow Verification by Client Field -->
+        <div class="mb-3 form-check">
+            {% if event.allowVerificationByClient %}
+            <input
+                type="checkbox"
+                class="form-check-input"
+                id="allowVerificationByClient"
+                name="allowVerificationByClient"
+                checked />
+            {% else %}
+            <input
+                type="checkbox"
+                class="form-check-input"
+                id="allowVerificationByClient"
+                name="allowVerificationByClient" />
+            {% endif %}
+            <label class="form-check-label" for="allowVerificationByClient">Allow Verification by Client</label>
+        </div>
+
+        <!-- Allow All Ticket Verifiers Field -->
+        <div class="mb-3 form-check">
+            {% if event.allowAllTicketVerifiers %}
+            <input
+                type="checkbox"
+                class="form-check-input"
+                id="allowAllTicketVerifiers"
+                name="allowAllTicketVerifiers"
+                checked />
+            {% else %}
+            <input
+                type="checkbox"
+                class="form-check-input"
+                id="allowAllTicketVerifiers"
+                name="allowAllTicketVerifiers" />
+            {% endif %}
+            <label class="form-check-label" for="allowAllTicketVerifiers">Allow All Ticket Verifiers</label>
+        </div>
+
+        <!-- Allowed Ticket Verifiers Field -->
+        <div class="mb-3">
+            <label for="allowedTicketVerifiers" class="form-label">Allowed Ticket Verifiers</label>
+            <select class="form-control" id="allowedTicketVerifiers" name="allowedTicketVerifiers">
+                <!-- Multiple options to be dynamically populated -->
+            </select>
+        </div>
+
+        <div class="d-flex">
+            <button type="submit" class="btn btn-success mx-auto" id="updateButton">Update</button>
+        </div>
+    </form>
+</div>
+
+{% endblock %} {% block javascript %}
+<script>
+    $(document).ready(function () {
+        const categorySelect2 = $("#categoryId");
+        categorySelect2.select2({
+            placeholder: "Select a category",
+            width: "100%",
+            theme: "bootstrap-5",
+            ajax: {
+                url: "/panel/search/category",
+                dataType: "json",
+                data: function (params) {
+                    return { search: params.term, page: params.page || 1 };
+                },
+                processResults: function (data, params) {
+                    params.page = params.page || 1;
+                    const clients = data.data.categories;
+                    const totalDocuments = data.data.totalDocuments;
+                    const limit = data.data.limit;
+                    return {
+                        results: clients.map((client) => ({ id: client._id, text: client.name })),
+                        pagination: { more: params.page * limit < totalDocuments },
+                    };
+                },
+            },
+        });
+
+        let categories = `{{ event.categoryId | dump | safe }}`;
+        if (categories) {
+            categories = JSON.parse(categories);
+            categories.forEach((category) => {
+                const categoryOption = new Option(category.name, category._id, true, true);
+                $("#categoryId").append(categoryOption).trigger("change");
+            });
+        }
+
+        $("#allowedTicketVerifiers").select2({
+            placeholder: "Select users who can verify ticket",
+            width: "100%",
+            theme: "bootstrap-5",
+            minimumInputLength: 1,
+            multiple: true,
+            ajax: {
+                url: "/panel/search/ticket/verifiers",
+                dataType: "json",
+                data: function (params) {
+                    return { search: params.term, page: params.page || 1 };
+                },
+                processResults: function (data, params) {
+                    params.page = params.page || 1;
+                    const clients = data.data.users;
+                    const totalDocuments = data.data.totalDocuments;
+                    const limit = data.data.limit;
+                    return {
+                        results: clients.map((client) => ({ id: client._id, text: client.name })),
+                        pagination: { more: params.page * limit < totalDocuments },
+                    };
+                },
+                delay: 300,
+                cache: true,
+            },
+        });
+
+        $("#updateEventForm").on("submit", function (e) {
+            e.preventDefault();
+            // const formData = $(this).serializeArray();
+            const formData = new FormData();
+            formData.append("name", $("#eventName").val());
+            formData.append("date", $("#eventDateTime").val());
+            formData.append("categoryId", $("#categoryId").val());
+            formData.append("allowVerificationByClient", $("#allowVerificationByClient").is(":checked"));
+            formData.append("allowAllTicketVerifiers", $("#allowAllTicketVerifiers").is(":checked"));
+            formData.append("allowedTicketVerifiers", $("#allowedTicketVerifiers").val());
+
+            $.ajax({
+                url: "/panel/events/update/{{event._id}}",
+                method: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    toastr.success(response.message);
+                },
+                error: function (xhr, status, error) {
+                    let data = xhr.responseJSON;
+                    toastr.error(data.error);
+                },
+            });
+        });
+    });
+</script>
+{% endblock %}

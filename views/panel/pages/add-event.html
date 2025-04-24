@@ -1,0 +1,527 @@
+{% extends "panel/layout.html" %} {% block body %}
+<div class="d-flex justify-content-between align-items-center border-bottom pb-2">
+    <h1 class="heading my-auto">Create Event</h1>
+</div>
+
+<div class="mt-3">
+    <form id="createEventForm">
+        <div class="mb-3">
+            <label for="eventName" class="form-label">Event Name</label>
+            <input
+                type="text"
+                class="form-control"
+                id="eventName"
+                name="eventName"
+                placeholder="Enter event name"
+                required />
+        </div>
+        <div class="mb-3">
+            <label for="eventDateTime" class="form-label">Event Date &amp; Time</label>
+            <input type="datetime-local" class="form-control" id="eventDateTime" name="eventDateTime" required />
+        </div>
+        <div class="mb-3">
+            <label for="clientId" class="form-label">Client ID</label>
+            <select class="form-control" id="clientId" name="clientId" required></select>
+        </div>
+        <div class="mb-3">
+            <label for="categoryId" class="form-label">Category ID</label>
+            <select class="form-control" id="categoryId" name="categoryId" required></select>
+        </div>
+
+        <!-- Allow Verification by Client Field -->
+        <div class="mb-3 form-check">
+            <input
+                type="checkbox"
+                class="form-check-input"
+                id="allowVerificationByClient"
+                name="allowVerificationByClient" />
+            <label class="form-check-label" for="allowVerificationByClient">Allow Verification by Client</label>
+        </div>
+
+        <!-- Allow All Ticket Verifiers Field -->
+        <div class="mb-3 form-check">
+            <input
+                type="checkbox"
+                class="form-check-input"
+                id="allowAllTicketVerifiers"
+                name="allowAllTicketVerifiers" />
+            <label class="form-check-label" for="allowAllTicketVerifiers">Allow All Ticket Verifiers</label>
+        </div>
+
+        <!-- Allowed Ticket Verifiers Field -->
+        <div class="mb-3">
+            <label for="allowedTicketVerifiers" class="form-label">Allowed Ticket Verifiers</label>
+            <select class="form-control" id="allowedTicketVerifiers" name="allowedTicketVerifiers">
+                <!-- Multiple options to be dynamically populated -->
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <div
+                class="border-bottom pb-2 d-flex flex-column flex-md-row justify-content-sm-between align-items-center">
+                <h4 class="">Ticket Types</h4>
+                <button
+                    class="btn btn-primary"
+                    type="button"
+                    id="addTicketTypeButton"
+                    data-bs-toggle="modal"
+                    data-bs-target="#ticketTypeModal">
+                    Add Ticket Type
+                </button>
+            </div>
+            <div id="ticket-types-container" class="mt-3"></div>
+        </div>
+
+        <div class="d-flex">
+            <button type="submit" class="btn btn-success mx-auto" id="createButton">Create</button>
+        </div>
+    </form>
+</div>
+
+<!-- Ticket Type Modal (for adding/editing) -->
+<div class="modal fade" id="ticketTypeModal" tabindex="-1" aria-labelledby="ticketTypeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header py-2">
+                <h5 class="modal-title" id="ticketTypeModalLabel">Ticket Type</h5>
+                <button type="button" class="btn-close btn-sm" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body py-2">
+                <div class="mb-2">
+                    <label class="form-label" for="name">Ticket Type Name</label>
+                    <div class="input-group">
+                        <input
+                            type="text"
+                            id="name"
+                            name="name"
+                            class="form-control"
+                            placeholder="Eg: Silver, Gold, Platinum"
+                            autocomplete="off"
+                            required />
+                        <span class="input-group-text"><i class="fa-solid fa-ticket"></i></span>
+                    </div>
+                </div>
+                <div class="mb-2">
+                    <label for="image" class="form-label">Ticket Type Design</label>
+                    <input type="file" class="form-control" name="image" id="image" accept="image/*" />
+                </div>
+                <canvas id="canvas"></canvas>
+            </div>
+            <div class="modal-footer py-2">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary btn-sm" id="submitButton">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- View Ticket Type Modal -->
+<div class="modal fade" id="viewTicketModal" tabindex="-1" aria-labelledby="viewTicketModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="viewTicketModalLabel">View Ticket Type Design</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <canvas id="viewCanvas"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} {% block javascript %}
+<script>
+    $(document).ready(function () {
+        // Initialize client select2
+        const clientSelect2 = $("#clientId");
+        clientSelect2.select2({
+            placeholder: "Select a client",
+            width: "100%",
+            theme: "bootstrap-5",
+            minimumInputLength: 1,
+            ajax: {
+                url: "/panel/search/clients",
+                dataType: "json",
+                data: function (params) {
+                    return { search: params.term, page: params.page || 1 };
+                },
+                processResults: function (data, params) {
+                    params.page = params.page || 1;
+                    const clients = data.data.clients;
+                    const totalDocuments = data.data.totalDocuments;
+                    const limit = data.data.limit;
+                    return {
+                        results: clients.map((client) => ({ id: client._id, text: client.name })),
+                        pagination: { more: params.page * limit < totalDocuments },
+                    };
+                },
+            },
+        });
+        const categorySelect2 = $("#categoryId");
+        categorySelect2.select2({
+            placeholder: "Select a category",
+            width: "100%",
+            theme: "bootstrap-5",
+            minimumInputLength: 1,
+            ajax: {
+                url: "/panel/search/category",
+                dataType: "json",
+                data: function (params) {
+                    return { search: params.term, page: params.page || 1 };
+                },
+                processResults: function (data, params) {
+                    params.page = params.page || 1;
+                    const clients = data.data.categories;
+                    const totalDocuments = data.data.totalDocuments;
+                    const limit = data.data.limit;
+                    return {
+                        results: clients.map((client) => ({ id: client._id, text: client.name })),
+                        pagination: { more: params.page * limit < totalDocuments },
+                    };
+                },
+            },
+        });
+
+        // Ticket types array and editing index variable
+        const ticketTypes = [];
+        let editingIndex = -1;
+        const ticketTypeContainer = $("#ticket-types-container");
+
+        // Render ticket types as compact cards
+        function renderTicketTypes() {
+            ticketTypeContainer.empty();
+            if (ticketTypes.length === 0) {
+                $("<p></p>")
+                    .text("No ticket-types created")
+                    .addClass("text-center p-0 mb-0")
+                    .appendTo(ticketTypeContainer);
+                return;
+            }
+            // Use smaller columns for a compact view.
+            const rowDiv = $("<div class='row row-cols-2 row-cols-md-3 g-3'></div>");
+            ticketTypes.forEach((ticketType, index) => {
+                const colDiv = $(`<div class='col' data-index="${index}"></div>`);
+                const cardDiv = $(`
+                    <div class="card shadow-sm">
+                        <div class="card-body p-2">
+                            <h6 class="card-title mb-1">${ticketType.name}</h6>
+                            <div class="btn-group">
+                                <button class="btn btn-secondary btn-sm editTicketType" type="button">Edit</button>
+                                <button class="btn btn-danger btn-sm deleteTicketType" type="button">Delete</button>
+                                <button class="btn btn-info btn-sm viewTicketType" type="button">View</button>
+                            </div>
+                        </div>
+                    </div>
+                `);
+                colDiv.append(cardDiv);
+                rowDiv.append(colDiv);
+            });
+            ticketTypeContainer.append(rowDiv);
+        }
+
+        // View Modal: Draw the ticket design on the view canvas.
+        function drawViewCanvas(ticketType) {
+            const viewCanvas = document.getElementById("viewCanvas");
+            if (!viewCanvas) return;
+            const ctx = viewCanvas.getContext("2d");
+            const img = new Image();
+            img.onload = function () {
+                // Define max dimensions for the view modal.
+                const maxWidth = 600,
+                    maxHeight = 400;
+                const scale = Math.min(maxWidth / img.width, maxHeight / img.height, 1);
+                const displayWidth = img.width * scale;
+                const displayHeight = img.height * scale;
+                viewCanvas.width = displayWidth;
+                viewCanvas.height = displayHeight;
+                ctx.clearRect(0, 0, viewCanvas.width, viewCanvas.height);
+                ctx.drawImage(img, 0, 0, displayWidth, displayHeight);
+                // Draw red QR box scaled to view dimensions.
+                ctx.strokeStyle = "red";
+                ctx.lineWidth = 2;
+                ctx.strokeRect(
+                    ticketType.qrData.x * scale,
+                    ticketType.qrData.y * scale,
+                    ticketType.qrData.width * scale,
+                    ticketType.qrData.height * scale
+                );
+            };
+            img.src = URL.createObjectURL(ticketType.file);
+        }
+
+        // Modal variables for ticket type design (in the add/edit modal)
+        const ttModal = $("#ticketTypeModal");
+        const ttiCanvas = $("#canvas").get(0);
+        const ttiContext = ttiCanvas.getContext("2d");
+        const minBoxSize = 20;
+        let image = new Image();
+        let scale = 1;
+        let currentImageBlob = undefined;
+        let qrBox = { top: 50, left: 50, width: 50, height: 50 };
+        let isDragging = false,
+            isResizing = false,
+            startX,
+            startY,
+            activeResizeCorner;
+
+        // Reset modal fields on hide (for add/edit modal)
+        ttModal.on("hidden.bs.modal", function () {
+            editingIndex = -1;
+            $("#name").val("");
+            $("#image").val("");
+            image = new Image();
+            currentImageBlob = undefined;
+            qrBox = { top: 50, left: 50, width: 100, height: 100 };
+            ttiContext.clearRect(0, 0, ttiCanvas.width, ttiCanvas.height);
+            ttiCanvas.width = 450;
+            ttiCanvas.height = 300;
+        });
+
+        // Draw canvas image and QR box in add/edit modal.
+        function drawCanvas() {
+            ttiContext.clearRect(0, 0, ttiCanvas.width, ttiCanvas.height);
+            if (image.src) {
+                ttiContext.drawImage(image, 0, 0, ttiCanvas.width, ttiCanvas.height);
+            }
+            ttiContext.strokeStyle = "red";
+            ttiContext.lineWidth = 2;
+            ttiContext.strokeRect(qrBox.left, qrBox.top, qrBox.width, qrBox.height);
+        }
+
+        // Helpers for modal canvas mouse events.
+        function isInsideBox(x, y) {
+            return x >= qrBox.left && x <= qrBox.left + qrBox.width && y >= qrBox.top && y <= qrBox.top + qrBox.height;
+        }
+        function getResizeCorner(x, y) {
+            const corners = [
+                { name: "top-left", x: qrBox.left, y: qrBox.top },
+                { name: "top-right", x: qrBox.left + qrBox.width, y: qrBox.top },
+                { name: "bottom-left", x: qrBox.left, y: qrBox.top + qrBox.height },
+                { name: "bottom-right", x: qrBox.left + qrBox.width, y: qrBox.top + qrBox.height },
+            ];
+            return corners.find((corner) => Math.abs(corner.x - x) <= 8 && Math.abs(corner.y - y) <= 8);
+        }
+
+        // Handle image file change in add/edit modal.
+        ttModal.on("change", "#image", function () {
+            const file = this.files[0];
+            if (file) {
+                currentImageBlob = file;
+                image.src = URL.createObjectURL(file);
+                image.onload = function () {
+                    const maxCanvasWidth = 450;
+                    scale = Math.min(1, maxCanvasWidth / image.width);
+                    ttiCanvas.width = image.width * scale;
+                    ttiCanvas.height = image.height * scale;
+                    drawCanvas();
+                };
+            }
+        });
+
+        // Add/edit modal canvas event handlers.
+        $("#canvas").on("mousedown", function (e) {
+            const rect = ttiCanvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            activeResizeCorner = getResizeCorner(mouseX, mouseY);
+            if (activeResizeCorner) {
+                isResizing = true;
+            } else if (isInsideBox(mouseX, mouseY)) {
+                isDragging = true;
+            }
+            startX = mouseX;
+            startY = mouseY;
+        });
+
+        $("#canvas").on("mousemove", function (e) {
+            const rect = ttiCanvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            if (isDragging) {
+                const dx = mouseX - startX;
+                const dy = mouseY - startY;
+                qrBox.left = Math.max(0, Math.min(qrBox.left + dx, ttiCanvas.width - qrBox.width));
+                qrBox.top = Math.max(0, Math.min(qrBox.top + dy, ttiCanvas.height - qrBox.height));
+                startX = mouseX;
+                startY = mouseY;
+                drawCanvas();
+            } else if (isResizing && activeResizeCorner) {
+                const dx = mouseX - startX;
+                const dy = mouseY - startY;
+                if (activeResizeCorner.name === "top-left") {
+                    qrBox.left = Math.max(0, qrBox.left + dx);
+                    qrBox.top = Math.max(0, qrBox.top + dy);
+                    qrBox.width = Math.max(minBoxSize, qrBox.width - dx);
+                    qrBox.height = Math.max(minBoxSize, qrBox.height - dy);
+                } else if (activeResizeCorner.name === "top-right") {
+                    qrBox.top = Math.max(0, qrBox.top + dy);
+                    qrBox.width = Math.max(minBoxSize, qrBox.width + dx);
+                    qrBox.height = Math.max(minBoxSize, qrBox.height - dy);
+                } else if (activeResizeCorner.name === "bottom-left") {
+                    qrBox.left = Math.max(0, qrBox.left + dx);
+                    qrBox.width = Math.max(minBoxSize, qrBox.width - dx);
+                    qrBox.height = Math.max(minBoxSize, qrBox.height + dy);
+                } else if (activeResizeCorner.name === "bottom-right") {
+                    qrBox.width = Math.max(minBoxSize, qrBox.width + dx);
+                    qrBox.height = Math.max(minBoxSize, qrBox.height + dy);
+                }
+                startX = mouseX;
+                startY = mouseY;
+                drawCanvas();
+            }
+        });
+
+        $("#canvas").on("mouseup", function () {
+            isDragging = false;
+            isResizing = false;
+            activeResizeCorner = null;
+        });
+
+        // Save or update ticket type from add/edit modal.
+        $("#submitButton").on("click", function () {
+            const qrData = {
+                x: Math.round(qrBox.left / scale),
+                y: Math.round(qrBox.top / scale),
+                width: Math.round(qrBox.width / scale),
+                height: Math.round(qrBox.height / scale),
+            };
+            const name = $("#name").val();
+            const fileInput = $("#image").get(0).files;
+            const file =
+                fileInput.length > 0
+                    ? fileInput[0]
+                    : editingIndex !== -1
+                    ? ticketTypes[editingIndex].file
+                    : currentImageBlob;
+            const ticketTypeData = { name, qrData, file };
+            if (editingIndex === -1) {
+                ticketTypes.push(ticketTypeData);
+            } else {
+                ticketTypes[editingIndex] = ticketTypeData;
+                editingIndex = -1;
+            }
+            renderTicketTypes();
+            ttModal.modal("hide");
+        });
+
+        // Edit ticket type event.
+        ticketTypeContainer.on("click", ".editTicketType", function () {
+            editingIndex = $(this).closest(".col").data("index");
+            if (editingIndex === undefined) {
+                editingIndex = $(this).closest(".card").index();
+            }
+            const ticketType = ticketTypes[editingIndex];
+            $("#name").val(ticketType.name);
+            if (ticketType.file) {
+                currentImageBlob = ticketType.file;
+                image.src = URL.createObjectURL(ticketType.file);
+                image.onload = function () {
+                    const maxCanvasWidth = 450;
+                    scale = Math.min(1, maxCanvasWidth / image.width);
+                    ttiCanvas.width = image.width * scale;
+                    ttiCanvas.height = image.height * scale;
+                    qrBox = {
+                        left: ticketType.qrData.x * scale,
+                        top: ticketType.qrData.y * scale,
+                        width: ticketType.qrData.width * scale,
+                        height: ticketType.qrData.height * scale,
+                    };
+                    drawCanvas();
+                };
+            } else {
+                $("#image").val("");
+                image = new Image();
+                qrBox = { top: 50, left: 50, width: 100, height: 100 };
+                ttiContext.clearRect(0, 0, ttiCanvas.width, ttiCanvas.height);
+            }
+            ttModal.modal("show");
+        });
+
+        // Delete ticket type event.
+        ticketTypeContainer.on("click", ".deleteTicketType", function () {
+            let index = $(this).closest(".col").data("index");
+            if (index === undefined) {
+                index = $(this).closest(".card").index();
+            }
+            ticketTypes.splice(index, 1);
+            renderTicketTypes();
+        });
+
+        // View ticket type event: open view modal and draw design on high-res canvas.
+        ticketTypeContainer.on("click", ".viewTicketType", function () {
+            let index = $(this).closest(".col").data("index");
+            if (index === undefined) {
+                index = $(this).closest(".card").index();
+            }
+            const ticketType = ticketTypes[index];
+            drawViewCanvas(ticketType);
+            $("#viewTicketModal").modal("show");
+        });
+
+        $("#allowedTicketVerifiers").select2({
+            placeholder: "Select users who can verify ticket",
+            width: "100%",
+            theme: "bootstrap-5",
+            minimumInputLength: 1,
+            multiple: true,
+            ajax: {
+                url: "/panel/search/ticket/verifiers",
+                dataType: "json",
+                data: function (params) {
+                    return { search: params.term, page: params.page || 1 };
+                },
+                processResults: function (data, params) {
+                    params.page = params.page || 1;
+                    const clients = data.data.users;
+                    const totalDocuments = data.data.totalDocuments;
+                    const limit = data.data.limit;
+                    return {
+                        results: clients.map((client) => ({ id: client._id, text: client.name })),
+                        pagination: { more: params.page * limit < totalDocuments },
+                    };
+                },
+                delay: 300,
+                cache: true,
+            },
+        });
+
+        // Form submission: send ticket types as JSON and files separately.
+        $("#createEventForm").on("submit", function (e) {
+            e.preventDefault();
+            var formData = new FormData();
+            formData.append("name", $("#eventName").val());
+            formData.append("date", $("#eventDateTime").val());
+            formData.append("categoryId", $("#categoryId").val());
+            formData.append("clientId", $("#clientId").val());
+            formData.append("allowVerificationByClient", $("#allowVerificationByClient").is(":checked"));
+            formData.append("allowAllTicketVerifiers", $("#allowAllTicketVerifiers").is(":checked"));
+            formData.append("allowedTicketVerifiers", $("#allowedTicketVerifiers").val());
+
+            const ticketTypesData = ticketTypes.map((tt) => {
+                return { name: tt.name, qrData: tt.qrData, fileName: tt.file ? tt.file.name : null };
+            });
+            formData.append("ticketTypes", JSON.stringify(ticketTypesData));
+            ticketTypes.forEach(function (tt) {
+                if (tt.file) {
+                    formData.append("ticketFiles", tt.file);
+                }
+            });
+
+            $.ajax({
+                url: "/panel/events",
+                method: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    toastr.success("Event created successfully!");
+                },
+                error: function (xhr, status, error) {
+                    let data = xhr.responseJSON;
+                    toastr.error(data.error);
+                },
+            });
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,478 @@
+{% extends "panel/layout.html" %} {% block head %}
+
+<link rel="stylesheet" href="/datatables/css/datatables.min.css" />
+<style>
+    /* Adjust canvas styling */
+    #canvas,
+    #designCanvas {
+        border: 1px solid #000;
+        width: 100%;
+        height: auto;
+        display: block;
+        margin: 10px 0;
+    }
+    /* Minimal modern card styling */
+    .card {
+        border: none;
+        border-radius: 0.4rem;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+    .card-header {
+        background-color: #f8f9fa;
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid #dee2e6;
+    }
+    .card-body {
+        padding: 1rem;
+    }
+    /* Header adjustments */
+    .heading {
+        font-size: 1.5rem;
+        margin-bottom: 0;
+    }
+    /* Dropdown icon style */
+    .dropdown i {
+        cursor: pointer;
+    }
+    /* Reduce spacing on buttons */
+    .btn-sm {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.875rem;
+    }
+</style>
+{% endblock %} {% block body %}
+
+<div class="container-fluid py-3">
+    <div class="d-flex justify-content-between align-items-center border-bottom pb-2">
+        <h1 class="heading mb-0">Event Details</h1>
+        <button class="btn btn-sm btn-success" id="generateTicketBtn" type="button">
+            <i class="fa-solid fa-plus"></i>
+            <span>Generate Tickets</span>
+        </button>
+    </div>
+
+    <div class="d-flex flex-column flex-xl-row gap-3 my-3">
+        <!-- Left Column: Event & Client Info -->
+        <div class="d-flex flex-column flex-sm-row flex-xl-column gap-3">
+            <div class="card flex-grow-1">
+                <div class="card-body">
+                    <div class="mb-2 border-bottom pb-2">
+                        <small class="text-muted">Event Name</small>
+                        <h5 class="mb-0">{{ event.eventName }}</h5>
+                    </div>
+                    <div class="mb-2 border-bottom pb-2">
+                        <small class="text-muted">Event Date</small>
+                        <h5 class="mb-0">{{ event.eventDate }}</h5>
+                    </div>
+                    <div>
+                        <small class="text-muted">Category</small>
+                        <h5 class="mb-0">{{ event.categoryName }}</h5>
+                    </div>
+                </div>
+            </div>
+            <div class="card flex-grow-1">
+                <div class="card-body">
+                    <div class="mb-2 border-bottom pb-2">
+                        <small class="text-muted">Client Name</small>
+                        <h5 class="mb-0">{{ event.clientName }}</h5>
+                    </div>
+                    <div class="mb-2 border-bottom pb-2">
+                        <small class="text-muted">Client Email</small>
+                        <h5 class="mb-0">{{ event.clientEmail }}</h5>
+                    </div>
+                    <div>
+                        <small class="text-muted">Client Number</small>
+                        <h5 class="mb-0">{{ event.clientNumber }}</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Right Column: Ticket Types -->
+        <div class="flex-grow-1">
+            <div class="card h-100">
+                <div class="card-header d-flex flex-column flex-sm-row justify-content-between align-items-center pb-2">
+                    <h5 class="mb-0">Event Ticket Types</h5>
+                    <button class="btn btn-success btn-sm mt-2 mt-sm-0" type="button" id="addTicketTypeButton">
+                        <i class="fa-solid fa-plus"></i> New Ticket Type
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="row g-2" id="ticketTypeRow">
+                        {% if event.ticketTypes.length %} {% for ticketType in event.ticketTypes %}
+                        <div class="col-12 col-md-6">
+                            <div class="card position-relative">
+                                <div class="card-body p-2">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <small class="text-muted">Name</small>
+                                            <h6 class="mb-0">{{ ticketType.name }}</h6>
+                                        </div>
+                                        <div class="dropdown">
+                                            <i
+                                                class="fa-solid fa-ellipsis-vertical"
+                                                data-bs-toggle="dropdown"
+                                                aria-expanded="false"></i>
+                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                <li>
+                                                    <button
+                                                        type="button"
+                                                        class="dropdown-item viewDesignButton"
+                                                        data-image="{{ ticketType.designPath }}"
+                                                        data-qr-dimensions="{{ ticketType.qrDimensions|dump }}"
+                                                        data-qr-positions="{{ ticketType.qrPositions|dump }}">
+                                                        View Ticket Design
+                                                    </button>
+                                                </li>
+                                                <li><hr class="dropdown-divider" /></li>
+                                                {% if showGenerateTicketUi %}
+                                                <li>
+                                                    <button
+                                                        class="dropdown-item generateTicketTypeButton"
+                                                        data-ticket-type-id="{{ ticketType._id }}">
+                                                        Generate Tickets
+                                                    </button>
+                                                </li>
+                                                <li><hr class="dropdown-divider" /></li>
+                                                {% endif %}
+                                                <li>
+                                                    <button
+                                                        class="dropdown-item editTicketTypeButton"
+                                                        data-ticket-type-id="{{ ticketType._id }}">
+                                                        Edit
+                                                    </button>
+                                                </li>
+                                                <li><hr class="dropdown-divider" /></li>
+                                                <li>
+                                                    <button
+                                                        class="dropdown-item deleteTicketTypeButton"
+                                                        data-ticket-type-id="{{ ticketType._id }}">
+                                                        Delete
+                                                    </button>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Tickets Generated</small>
+                                        <h6 class="mb-0">{{ ticketType.ticketCount or 0 }}</h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %} {% else %}
+                        <div class="col-12 text-center text-danger">
+                            <p class="mb-0">Ticket Types for the event not created yet!</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-responsive mt-3 text-nowrap">
+        <table class="table table-striped table-bordered" id="datatable">
+            <thead class="table-light">
+                <tr>
+                    <td>Tickets Generated At</td>
+                    <td>Actions</td>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+
+<!-- Ticket Type Modal -->
+<div class="modal fade" id="ticketTypeModal" tabindex="-1" aria-labelledby="ticketTypeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header py-2">
+                <h5 class="modal-title" id="ticketTypeModalLabel"></h5>
+                <button type="button" class="btn-close btn-sm" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body py-2">
+                <form id="ticketTypeForm" method="post">
+                    <div class="mb-2">
+                        <label class="form-label" for="name">Ticket Type Name</label>
+                        <div class="input-group">
+                            <input
+                                type="text"
+                                id="name"
+                                name="name"
+                                class="form-control"
+                                placeholder="Eg: Silver, Gold, Platinum"
+                                autocomplete="off"
+                                required />
+                            <span class="input-group-text"><i class="fa-solid fa-ticket"></i></span>
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <label for="image" class="form-label">Ticket Type Design</label>
+                        <input type="file" class="form-control" name="image" id="image" accept="image/*" />
+                    </div>
+                    <canvas id="canvas"></canvas>
+                </form>
+            </div>
+            <div class="modal-footer py-2">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary btn-sm" id="submitButton">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Design Modal -->
+<div class="modal fade" id="designModal" tabindex="-1" aria-labelledby="designModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header py-2">
+                <h5 class="modal-title" id="designModalLabel">Ticket Type Design</h5>
+                <button type="button" class="btn-close btn-sm" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body py-2">
+                <canvas id="designCanvas"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if showGenerateTicketUi %}
+<!-- Generate Ticket Modal -->
+<div
+    class="modal fade"
+    id="generateTicketModal"
+    tabindex="-1"
+    aria-labelledby="generateTicketModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header py-2">
+                <h5 class="modal-title" id="generateTicketModalLabel">Generate Tickets</h5>
+                <button type="button" class="btn-close btn-sm" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="generateTicketForm" action="/panel/generate/tickets/{{ event._id }}" method="post">
+                <div class="modal-body py-2">
+                    <div class="mb-2">
+                        <label class="form-label" for="ticketTypeSelect">Ticket Type</label>
+                        <select id="ticketTypeSelect" name="ticketTypeSelect" class="form-select" disabled>
+                            {% for ticketType in event.ticketTypes %}
+                            <option value="{{ ticketType._id }}">{{ ticketType.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label" for="ticketsToGenerate">Tickets To Generate</label>
+                        <input type="number" name="ticketsToGenerate" id="ticketsToGenerate" class="form-control" />
+                    </div>
+                </div>
+                <div class="modal-footer py-2">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary btn-sm" id="generateButton">Generate</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %} {% if showGenerateTicketUi %}
+<div
+    class="modal fade"
+    id="ticketGenerateModal"
+    tabindex="-1"
+    aria-labelledby="ticketGenerateModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="ticketGenerateModalLabel">Generate Event Tickets</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <form action="/panel/generate/tickets/{{ event._id }}" id="ticketGenerateForm" method="post">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="ticketTypeId" class="form-label">Ticket Type</label>
+                        <select id="ticketTypeId" class="form-select">
+                            <option value="">Select a ticket-type</option>
+                            {% for ticketType in event.ticketTypes %}
+                            <option value="{{ ticketType._id }}">{{ ticketType.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="ticketQuantity" class="form-label">Quantity</label>
+                        <input type="number" id="ticketQuantity" class="form-control" min="1" value="0" />
+                    </div>
+                    <button type="button" class="btn btn-secondary" id="addTicketTypeBtn">Add Ticket Type</button>
+                    <div id="selectedTicketTypes" class="mt-3"></div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endif %} {% endblock %} {% block javascript %}
+<script src="/dist/js/ticket-type.js"></script>
+<script src="/datatables/js/datatables.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        let datatable = $("#datatable");
+        datatable.DataTable({
+            paging: true,
+            lengthChange: true,
+            lengthMenu: [
+                [10, 25, 50, -1],
+                [10, 25, 50, "All"],
+            ],
+            ordering: true,
+            processing: true,
+            searching: false,
+            serverSide: true,
+            searchDelay: 400,
+            pagingType: "full_numbers",
+            pageLength: 10,
+            responsive: false,
+            autoWidth: false,
+            info: true,
+            ajax: {
+                url: "/panel/events/tickets/generated/batch/{{event._id}}",
+                accepts: "application/json",
+                contentType: "application/json",
+                dataType: "json",
+                method: "GET",
+                dataSrc: {
+                    data: "data.data",
+                    draw: "data.draw",
+                    recordsTotal: "data.recordsTotal",
+                    recordsFiltered: "data.recordsFiltered",
+                },
+            },
+            columns: [
+                { data: "createdAt" },
+                {
+                    data: function (row) {
+                        return `
+                        <div class="d-flex gap-2">
+                            <a class="btn btn-sm btn-secondary" href="/panel/events/tickets/generated/batch/s/${row._id}">
+                                <i class="fa-solid fa-eye"></i>
+                                <span>View</span>
+                            </a>
+                            <a class="btn btn-sm btn-primary" href="/panel/download/tickets/${row.ticketGenerationId}">
+                                <i class="fa-solid fa-download"></i>
+                                <span>Download</span>
+                            </a>
+                        </div>`;
+                    },
+                    orderable: false,
+                },
+            ],
+        });
+
+        let ticketGenerateModal = $("#ticketGenerateModal");
+        let generateTicketBtn = $("#generateTicketBtn");
+
+        let ticketTypeSelect = $("#ticketTypeId");
+        let ticketQuantityInput = $("#ticketQuantity");
+
+        let addTicketTypeBtn = $("#addTicketTypeBtn");
+        let selectedTicketTypesContainer = $("#selectedTicketTypes");
+        let ticketGenerateForm = $("#ticketGenerateForm");
+
+        let selectedTickets = [];
+
+        function updateUI() {
+            selectedTicketTypesContainer.empty();
+            selectedTickets.forEach((ticket) => {
+                let ticketTypeId = Object.keys(ticket)[0];
+                let quantity = ticket[ticketTypeId];
+                let ticketTypeName = ticketTypeSelect.find(`option[value='${ticketTypeId}']`).text();
+                let ticketItem = $(`
+                <div class="ticket-type-item" data-id="${ticketTypeId}">
+                    <span>${ticketTypeName} - ${quantity}</span>
+                    <button type="button" class="btn btn-sm btn-danger remove-ticket-type">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `);
+                selectedTicketTypesContainer.append(ticketItem);
+            });
+        }
+
+        ticketGenerateModal.on("hide.bs.modal", function () {
+            ticketTypeSelect.val("");
+            ticketQuantityInput.prop("disabled", true);
+            ticketGenerateForm[0].reset();
+            selectedTickets = [];
+            selectedTicketTypesContainer.empty();
+        });
+
+        generateTicketBtn.on("click", function () {
+            ticketGenerateModal.modal("show");
+        });
+
+        addTicketTypeBtn.on("click", function () {
+            let ticketTypeId = ticketTypeSelect.val();
+            let ticketTypeName = ticketTypeSelect.find("option:selected").text();
+            let quantity = parseInt(ticketQuantityInput.val(), 10);
+
+            if (!ticketTypeId || !quantity || quantity <= 0) {
+                toastr.error("Please select a valid ticket type and quantity.");
+                return;
+            }
+
+            let existingTicket = selectedTickets.find((ticket) => ticket[ticketTypeId]);
+            if (existingTicket) {
+                existingTicket[ticketTypeId] += quantity;
+            } else {
+                selectedTickets.push({ [ticketTypeId]: quantity });
+            }
+
+            updateUI();
+
+            ticketTypeSelect.val("");
+            ticketQuantityInput.val(0);
+        });
+
+        selectedTicketTypesContainer.on("click", ".remove-ticket-type", function () {
+            let ticketTypeId = $(this).parent().attr("data-id");
+            selectedTickets = selectedTickets.filter((ticket) => !ticket[ticketTypeId]);
+            updateUI();
+        });
+
+        ticketGenerateForm.on("submit", function (e) {
+            e.preventDefault();
+
+            if (selectedTickets.length === 0) {
+                toastr.error("Please add at least one ticket type.");
+                return;
+            }
+
+            const actionUrl = $(this).attr("action");
+
+            $.ajax({
+                url: actionUrl,
+                method: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(selectedTickets),
+                success: function (response) {
+                    toastr.success("Tickets generated successfully!");
+                    ticketGenerateModal.modal("hide");
+                    selectedTickets = [];
+                    updateUI();
+                    ticketGenerateForm[0].reset();
+                    window.location.reload();
+                },
+                error: function (error) {
+                    toastr.error("Failed to generate tickets.");
+                },
+            });
+        });
+    });
+</script>
+
+{% endblock %}

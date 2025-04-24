@@ -1,0 +1,286 @@
+{% extends "panel/layout.html" %} {% block head %}
+<!-- DataTables CSS -->
+<link rel="stylesheet" href="/datatables/css/datatables.min.css" />
+<style>
+    /* Global Background */
+    body {
+        background-color: #f2f7fc;
+    }
+    /* Client Details Card */
+    .client-info-card {
+        border: none;
+        border-radius: 0.4rem;
+        box-shadow: 0 0.1rem 0.2rem rgba(0, 0, 0, 0.05);
+        margin-bottom: 1rem;
+        background-color: #fff;
+    }
+    .client-info-card .card-header {
+        background-color: #cce7ff;
+        padding: 0.5rem 0.75rem;
+        border-bottom: 1px solid #b3d7ff;
+    }
+    .client-info-card .card-body {
+        padding: 0.75rem;
+    }
+    /* Section Titles */
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #343a40;
+    }
+    /* Table Header Styling */
+    .table thead th {
+        background-color: #d4f4dd;
+        color: #2d6a4f;
+    }
+    /* Custom button for actions */
+    .btn-secondary i {
+        margin-right: 0.25rem;
+    }
+</style>
+{% endblock %} {% block body %}
+<div class="container my-4">
+    <!-- Client Information Card -->
+    <div class="card client-info-card">
+        <div class="card-header">
+            <h3 class="mb-0">Client Details</h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-1"><strong>Name:</strong> {{ client.name }}</p>
+                    <p class="mb-1"><strong>Number:</strong> {{ client.number }}</p>
+                </div>
+                <div class="col-md-6">
+                    <p class="mb-1"><strong>Email:</strong> {{ client.email }}</p>
+                    <p class="mb-1"><strong>Joining Date:</strong> {{ client.createdAt }}</p>
+                </div>
+            </div>
+            <p class="mt-2 mb-0"><strong>Total Events:</strong> {{ client.totalEvents }}</p>
+        </div>
+    </div>
+
+    {% if showEventsUi %}
+    <!-- Ongoing Events Table Section -->
+    <div class="mt-4">
+        <div class="row">
+            <div class="col-12 mb-3 border-bottom border-secondary">
+                <h5 class="section-title">Ongoing Events</h5>
+            </div>
+        </div>
+        <div class="table-responsive text-nowrap">
+            <table class="table table-bordered table-sm" id="ongoingEventsTable">
+                <thead>
+                    <tr>
+                        <th>Event Name</th>
+                        <th>Event Date</th>
+                        <th>Tickets</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+
+    <!-- Upcoming Events Table Section -->
+    <div class="mt-4">
+        <div class="row">
+            <div class="col-12 mb-3 border-bottom border-secondary">
+                <h5 class="section-title">Upcoming Events</h5>
+            </div>
+        </div>
+        <div class="table-responsive text-nowrap">
+            <table class="table table-bordered table-sm" id="upcomingEventsTable">
+                <thead>
+                    <tr>
+                        <th>Event Name</th>
+                        <th>Event Date</th>
+                        <th>Tickets</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+
+    <!-- Past Events Table Section -->
+    <div class="mt-4 mb-4">
+        <div class="row">
+            <div class="col-12 mb-3 border-bottom border-secondary">
+                <h5 class="section-title">Past Events</h5>
+            </div>
+        </div>
+        <div class="table-responsive text-nowrap">
+            <table class="table table-bordered table-sm" id="pastEventsTable">
+                <thead>
+                    <tr>
+                        <th>Event Name</th>
+                        <th>Event Date</th>
+                        <th>Tickets</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %} {% block javascript %}
+<!-- DataTables JS -->
+<script src="/datatables/js/datatables.min.js"></script>
+<!-- Bootstrap v5.3.3 Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    $(document).ready(function () {
+        // Configure DataTables for ongoing events
+        $("#ongoingEventsTable").DataTable({
+            paging: true,
+            lengthChange: true,
+            lengthMenu: [10, 25, 50],
+            ordering: true,
+            order: [[1, "asc"]],
+            processing: true,
+            searching: true,
+            serverSide: true,
+            searchDelay: 400,
+            pagingType: "full_numbers",
+            pageLength: 10,
+            responsive: true,
+            autoWidth: true,
+            info: true,
+            ajax: {
+                url: "/panel/clients/events/{{client._id}}?eventStatus=ongoing",
+                method: "GET",
+                dataSrc: {
+                    data: "data.data",
+                    draw: "data.draw",
+                    recordsTotal: "data.recordsTotal",
+                    recordsFiltered: "data.recordsFiltered",
+                },
+            },
+            columns: [
+                { data: "name" },
+                { data: "date" },
+                {
+                    data: function (row) {
+                        return `${row.verifiedTickets}/${row.totalTickets} (${row.verifiedTicketsPercentage}%)`;
+                    },
+                    orderable: false,
+                },
+                {
+                    data: function (row) {
+                        return `
+                <div class="d-flex gap-2">
+                  <a class="btn btn-sm btn-secondary" href="/panel/events/s/${row._id}">
+                    <i class="fa-solid fa-eye"></i>
+                    <span>View</span>
+                  </a>
+                </div>`;
+                    },
+                    orderable: false,
+                },
+            ],
+        });
+
+        // Configure DataTables for upcoming events
+        $("#upcomingEventsTable").DataTable({
+            paging: true,
+            lengthChange: true,
+            lengthMenu: [10, 25, 50],
+            ordering: true,
+            order: [[1, "asc"]],
+            processing: true,
+            searching: true,
+            serverSide: true,
+            searchDelay: 400,
+            pagingType: "full_numbers",
+            pageLength: 10,
+            responsive: true,
+            autoWidth: true,
+            info: true,
+            ajax: {
+                url: "/panel/clients/events/{{client._id}}?eventStatus=upcoming",
+                method: "GET",
+                dataSrc: {
+                    data: "data.data",
+                    draw: "data.draw",
+                    recordsTotal: "data.recordsTotal",
+                    recordsFiltered: "data.recordsFiltered",
+                },
+            },
+            columns: [
+                { data: "name" },
+                { data: "date" },
+                {
+                    data: function (row) {
+                        return `${row.verifiedTickets}/${row.totalTickets} (${row.verifiedTicketsPercentage}%)`;
+                    },
+                    orderable: false,
+                },
+                {
+                    data: function (row) {
+                        return `
+                <div class="d-flex gap-2">
+                  <a class="btn btn-sm btn-secondary" href="/panel/events/s/${row._id}">
+                    <i class="fa-solid fa-eye"></i>
+                    <span>View</span>
+                  </a>
+                </div>`;
+                    },
+                    orderable: false,
+                },
+            ],
+        });
+
+        // Configure DataTables for past events
+        $("#pastEventsTable").DataTable({
+            paging: true,
+            lengthChange: true,
+            lengthMenu: [10, 25, 50],
+            ordering: true,
+            order: [[1, "asc"]],
+            processing: true,
+            searching: true,
+            serverSide: true,
+            searchDelay: 400,
+            pagingType: "full_numbers",
+            pageLength: 10,
+            responsive: true,
+            autoWidth: true,
+            info: true,
+            ajax: {
+                url: "/panel/clients/events/{{client._id}}?eventStatus=past",
+                method: "GET",
+                dataSrc: {
+                    data: "data.data",
+                    draw: "data.draw",
+                    recordsTotal: "data.recordsTotal",
+                    recordsFiltered: "data.recordsFiltered",
+                },
+            },
+            columns: [
+                { data: "name" },
+                { data: "date" },
+                {
+                    data: function (row) {
+                        return `${row.verifiedTickets}/${row.totalTickets} (${row.verifiedTicketsPercentage}%)`;
+                    },
+                    orderable: false,
+                },
+                {
+                    data: function (row) {
+                        return `
+                <div class="d-flex gap-2">
+                  <a class="btn btn-sm btn-secondary" href="/panel/events/s/${row._id}">
+                    <i class="fa-solid fa-eye"></i>
+                    <span>View</span>
+                  </a>
+                </div>`;
+                    },
+                    orderable: false,
+                },
+            ],
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,9 @@
+{% block javascript %} {% if (success.length > 0) %}
+<script>
+    toastr.success("{{ success[0] }}");
+</script>
+{% endif %} {% if (error.length > 0) %}
+<script>
+    toastr.error("{{ error[0] }}");
+</script>
+{% endif %} {% endblock %}

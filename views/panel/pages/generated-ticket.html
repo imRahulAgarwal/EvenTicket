@@ -1,0 +1,98 @@
+{% extends "panel/layout.html" %} {% block head %}
+<!-- Custom CSS for modern card styling -->
+<style>
+    .card {
+        border: none;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        border-radius: 0.5rem;
+        overflow: hidden;
+    }
+    .card-header {
+        background-color: #f8f9fc;
+        border-bottom: 1px solid #e3e6f0;
+        padding: 1rem 1.25rem;
+    }
+    .card-body {
+        padding: 1.25rem;
+    }
+    .btn {
+        transition: all 0.3s ease;
+    }
+    .btn:hover {
+        transform: translateY(-2px);
+    }
+    small {
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+</style>
+{% endblock %} {% block body %}
+
+<div class="container my-3">
+    <div class="row g-4">
+        <!-- Event Information Card -->
+        <div class="col-lg-4 col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0 text-primary">Event Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <small class="text-muted">Event Name</small>
+                        <p class="h5 mb-0">{{ event.eventName }}</p>
+                    </div>
+                    <div class="mb-4">
+                        <small class="text-muted">Event Date</small>
+                        <p class="h5 mb-0">{{ event.eventDateTime }}</p>
+                    </div>
+                    <div>
+                        <small class="text-muted">Tickets Generated At</small>
+                        <p class="h5 mb-0">{{ event.createdAt }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ticket Types Cards -->
+        <div class="col-lg-8 col-md-6">
+            <div class="row g-4">
+                {% for ticketType in event.ticketGenerationBatchTicketTypes %}
+                <div class="col-lg-6 col-md-12">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5 class="mb-0 text-secondary">{{ ticketType.ticketTypeName }}</h5>
+                        </div>
+                        <div class="card-body d-flex flex-column justify-content-between">
+                            <div class="mb-4">
+                                <small class="text-muted">Generated Ticket Count</small>
+                                <p class="h5 mb-0">{{ ticketType.ticketTypeCount }} Tickets</p>
+                            </div>
+                            <div>
+                                <small class="text-muted">Actions</small>
+                                <div class="d-flex flex-wrap gap-2 mt-2">
+                                    <a
+                                        class="btn btn-primary flex-fill"
+                                        href="/panel/events/tickets/generated/batch/s/type/{{ event.ticketGenerationBatchId }}?ticketTypeId={{ ticketType.ticketTypeId }}">
+                                        View Tickets
+                                    </a>
+                                    <a class="btn btn-success flex-fill" href="{{ ticketType.ticketTypeDownloadLink }}">
+                                        Download Tickets
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %} {% block javascript %}
+<script>
+    $(document).ready(function () {
+        // Any additional JS if needed
+    });
+</script>
+{% endblock %}

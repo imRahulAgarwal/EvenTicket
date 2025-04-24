@@ -1,0 +1,13 @@
+<aside id="sidebar" class="bg-light sidebar sidebar-show">
+    <div class="website-name">
+        <h2 class="m-auto">EvenTicket</h2>
+    </div>
+    <nav class="nav flex-column">
+        {% for page in pages %}
+        <a class="nav-link {{ 'active' if page.isActive }} sidebarIconDiv" href="{{page.href}}" id="{{page.id}}">
+            {{page.icon | safe}}
+            <span class="text">{{page.name}}</span>
+        </a>
+        {% endfor %}
+    </nav>
+</aside>

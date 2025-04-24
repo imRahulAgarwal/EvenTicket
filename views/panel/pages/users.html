@@ -1,0 +1,310 @@
+{% extends "panel/layout.html" %} {% block head %}
+
+<link rel="stylesheet" href="/datatables/css/datatables.min.css" />
+{% endblock %} {% block body %}
+
+<div class="d-flex justify-content-between align-items-center border-bottom pb-2">
+    <h1 class="heading my-auto">Users</h1>
+    {% if showCreateUi %}
+    <button class="btn btn-success addUserButton" type="button">
+        <i class="fa-solid fa-plus"></i>
+        <span>Add New User</span>
+    </button>
+    {% endif %}
+</div>
+
+<div class="table-responsive mt-3 text-nowrap">
+    <table class="table table-striped table-bordered" id="datatable">
+        <thead class="table-light">
+            <tr>
+                <td>Name</td>
+                <td>Email</td>
+                <td>Actions</td>
+            </tr>
+        </thead>
+    </table>
+</div>
+
+{% if showCreateUi or showUpdateUi %}
+<div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="userModalLabel"></h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="userForm" method="post">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label mb-0">Name</label>
+                        <div class="input-group">
+                            <input
+                                type="text"
+                                id="name"
+                                name="name"
+                                class="form-control"
+                                placeholder="Eg: Example"
+                                required />
+                            <span class="input-group-text iconDiv">
+                                <i class="fa-solid fa-user"></i>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label mb-0">Email</label>
+                        <div class="input-group">
+                            <input
+                                type="email"
+                                id="email"
+                                name="email"
+                                class="form-control"
+                                placeholder="Eg: example@gmail.com"
+                                required />
+                            <span class="input-group-text iconDiv">
+                                <i class="fa-solid fa-envelope"></i>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label mb-0">Roles</label>
+                        <div class="input-group">
+                            <select name="roles" id="roles" multiple class="form-select" required>
+                                {% for role in roles %}
+                                <option value="{{role._id}}">{{ role.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- User Details Modal -->
+<div class="modal fade" id="viewUserModal" tabindex="-1" aria-labelledby="viewUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h5 class="modal-title" id="viewUserModalLabel">User Details</h5>
+                <!-- Close button using the class 'handle' -->
+                <button type="button" class="btn-close handle" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <!-- Modal Body with dynamic fields -->
+            <div class="modal-body">
+                <div class="mb-3">
+                    <strong>Name: </strong>
+                    <span id="userName">Loading...</span>
+                </div>
+                <div class="mb-3">
+                    <strong>Email: </strong>
+                    <span id="userEmail">Loading...</span>
+                </div>
+                <div class="mb-3">
+                    <strong>Roles: </strong>
+                    <span id="userRoles">Loading...</span>
+                </div>
+                <div class="mb-3">
+                    <strong>Is Admin: </strong>
+                    <span id="userIsAdmin">Loading...</span>
+                </div>
+            </div>
+            <!-- Modal Footer (optional) -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary handle" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %} {% block javascript %}
+
+<script src="/datatables/js/datatables.min.js"></script>
+<script>
+    $(document).ready(function () {
+        let datatable = $("#datatable");
+        datatable.DataTable({
+            paging: true,
+            lengthChange: true,
+            lengthMenu: [10, 25, 50],
+            ordering: true,
+            processing: true,
+            searching: true,
+            serverSide: true,
+            searchDelay: 400,
+            pagingType: "full_numbers",
+            pageLength: 10,
+            responsive: true,
+            autoWidth: true,
+            info: true,
+            ajax: {
+                url: "/panel/panel-users/all",
+                accepts: "application/json",
+                contentType: "application/json",
+                dataType: "json",
+                method: "GET",
+                dataSrc: {
+                    data: "data.data",
+                    draw: "data.draw",
+                    recordsTotal: "data.recordsTotal",
+                    recordsFiltered: "data.recordsFiltered",
+                },
+            },
+            columns: [
+                { data: "name" },
+                { data: "email", orderable: false },
+                {
+                    data: function (row) {
+                        let showReadUi = "{{showReadUi}}";
+                        let showUpdateUi = "{{showUpdateUi}}";
+                        let showDeleteUi = "{{showDeleteUi}}";
+
+                        let readUiBtn = `
+                        <button class="btn btn-sm btn-secondary viewUserButton" data-user-id=${row._id}>
+                            <i class="fa-solid fa-eye"></i>
+                            <span>View</span>
+                        </button>
+                        `;
+
+                        let updateUiBtn = `
+                        <button class="btn btn-sm btn-primary editUserButton" data-user-id=${row._id}>
+                            <i class="fa-solid fa-pen"></i>
+                            <span>Edit</span>
+                        </button>
+                        `;
+
+                        let deleteUiBtn = `
+                        <button class="btn btn-sm btn-danger deleteUserButton" data-user-id=${row._id}>
+                            <i class="fa-solid fa-trash"></i>
+                            <span>Delete</span>
+                        </button>
+                        `;
+
+                        return `
+                        <div class="d-flex gap-2">
+                            ${showReadUi === "true" ? readUiBtn : ""}
+                            ${showUpdateUi === "true" && !row.isAdmin ? updateUiBtn : ""}
+                            ${showDeleteUi === "true" && !row.isAdmin ? deleteUiBtn : ""}
+                        </div>`;
+                    },
+                    orderable: false,
+                },
+            ],
+        });
+
+        let userModal = $("#userModal");
+        let roleSelect = $("#roles");
+
+        $(".addUserButton").on("click", function () {
+            $(userModal).find("#userModalLabel").text("Add User Details");
+            $(userModal).find("#userForm").attr("action", "/panel/panel-users");
+            userModal.modal("show");
+        });
+
+        $(userModal).on("hide.bs.modal", function () {
+            $(userModal).find("#userModalLabel").text("");
+            $(userModal).find("#userForm").attr("action", "");
+            $(userModal).find("#userForm")[0].reset();
+            roleSelect.val("").trigger("change");
+        });
+
+        $("#datatable").on("click", ".editUserButton", function (e) {
+            e.preventDefault();
+            let userId = $(this).data("user-id");
+            if (!userId) {
+                return;
+            }
+
+            $.ajax(`/panel/panel-users/${userId}`, {
+                method: "GET",
+                headers: { "Content-Type": "application/json" },
+                dataType: "json",
+                success: (data, text, xhr) => {
+                    let user = data.user;
+                    $(userModal).find("#userForm").find("#name").val(user.name);
+                    $(userModal).find("#userForm").find("#email").val(user.email);
+                    let roles = user.roles.map((role) => role._id);
+                    $(userModal).find("#userForm").find("#roles").val(roles).trigger("change");
+
+                    $(userModal).find("#userModalLabel").text("Update User Details");
+                    $(userModal).find("#userForm").attr("action", `/panel/panel-users/update/${userId}`);
+                    $(userModal).modal("show");
+                },
+                error: (xhr, text) => {
+                    let data = xhr.responseJSON;
+                    toastr.error(data.error);
+                },
+            });
+        });
+
+        $("#datatable").on("click", ".viewUserButton", function (e) {
+            e.preventDefault();
+            let userId = $(this).data("user-id");
+            if (!userId) {
+                return;
+            }
+
+            $.ajax(`/panel/panel-users/${userId}`, {
+                method: "GET",
+                headers: { "Content-Type": "application/json" },
+                dataType: "json",
+                success: (data, text, xhr) => {
+                    const user = data.user;
+
+                    $("#userName").text(user.name || "N/A");
+                    $("#userEmail").text(user.email || "N/A");
+                    let userRoles = "N/A";
+                    if (user.roles && user.roles.length) {
+                        userRoles = user.roles.map((role) => role.name).join(", ");
+                    }
+                    $("#userRoles").text(userRoles);
+                    $("#userIsAdmin").text(user.isAdmin ? "Yes" : "No");
+                    $("#viewUserModal").modal("show");
+                },
+                error: (xhr, text) => {
+                    let data = xhr.responseJSON;
+                    toastr.error(data.error);
+                },
+            });
+        });
+
+        $("#datatable").on("click", ".deleteUserButton", function (e) {
+            e.preventDefault();
+            let userId = $(this).data("user-id");
+            if (!userId) {
+                return;
+            }
+
+            let confirmationModal = $("#confirmationModal");
+            $(confirmationModal).find("form").attr("action", `/panel/panel-users/delete/${userId}`);
+            $(confirmationModal).attr("aria-hidden", false);
+            $(confirmationModal).modal("show");
+        });
+
+        roleSelect.select2({
+            placeholder: "Select role",
+            width: "100%",
+            multiple: true,
+            dropdownParent: $("#userModal"),
+            allowClear: true,
+        });
+
+        $("#viewUserModal").on("hidden.bs.modal", function (e) {
+            // Reset modal content for a clear state
+            $("#userName").text("");
+            $("#userEmail").text("");
+            $("#userRoles").text("");
+            $("#userIsAdmin").text("");
+        });
+    });
+</script>
+
+{% endblock %}

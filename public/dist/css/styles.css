@@ -1,0 +1,176 @@
+:root {
+    --ubuntu: "Ubuntu", serif;
+    --montserrat: "Montserrat", serif;
+}
+
+html,
+body {
+    height: 100%;
+}
+
+body {
+    font-family: var(--ubuntu);
+    overflow-x: hidden;
+}
+
+.heading {
+    font-family: var(--montserrat);
+}
+
+.message {
+    font-size: 0.875rem;
+}
+
+.customCard {
+    border-color: #00000015;
+    max-width: 350px;
+}
+
+.customCard input:focus {
+    border-color: #00000065;
+    box-shadow: none;
+}
+
+.customCard input:focus + .iconDiv {
+    border-color: #00000065;
+}
+
+.iconDiv {
+    width: 2.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.submitButton {
+    transform: scale(1);
+    transition: transform 0.2s ease-in-out;
+}
+
+.submitButton:hover {
+    transform: scale(1.02);
+}
+
+.redirectLink {
+    position: relative;
+    font-size: 14px;
+    text-decoration: none;
+}
+
+.redirectLink::after {
+    content: " ";
+    position: absolute;
+    top: calc(100% + 3px);
+    left: 0;
+    width: 0;
+    height: 0.1rem;
+    background-color: #144ff1;
+    transition: width 0.3s ease-in-out;
+}
+
+.redirectLink:hover::after {
+    width: 100%;
+}
+
+header {
+    height: 4rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    width: 100%;
+    border-bottom: 1px solid #00000035;
+    position: sticky;
+    top: 0;
+    z-index: 99;
+}
+
+header .dropdownIcon {
+    width: 40px;
+    height: 40px;
+    border-radius: 100%;
+    border: 1px solid #00000035;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#sidebar {
+    width: 16rem;
+    height: 100%;
+    position: fixed;
+    inset: 0;
+    transition: transform 0.3s ease-in-out;
+    z-index: 1000;
+    border-right: 1px solid #00000035;
+}
+
+#sidebar .website-name {
+    height: 4rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    width: 100%;
+    display: flex;
+    font-family: var(--montserrat);
+    border-bottom: 1px solid #00000035;
+}
+
+#sidebar .sidebarIconDiv {
+    display: flex;
+    align-items: center;
+}
+
+#sidebar .sidebarIconDiv.active {
+    background-color: #00000015;
+}
+
+#sidebar .sidebarIconDiv .icon {
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.1rem;
+}
+
+#sidebar.sidebar-show {
+    transform: translateX(0%);
+}
+
+#sidebar.sidebar-hidden {
+    transform: translateX(-100%);
+}
+
+main {
+    transition: margin-left 0.3s ease-in-out;
+    min-height: 100vh;
+}
+
+main.sidebar-open {
+    margin-left: 16rem;
+}
+
+main.sidebar-closed {
+    margin-left: 0;
+}
+
+.permissions-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.permission-box {
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 0.75rem;
+    padding: 0.5rem 1rem;
+    display: inline-block;
+    white-space: nowrap;
+}
+
+.modal input:focus {
+    border-color: #00000065;
+    box-shadow: none;
+}
+
+.modal input:focus + .iconDiv {
+    border-color: #00000065;
+}
