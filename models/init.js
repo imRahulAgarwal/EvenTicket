@@ -6,6 +6,7 @@ const initSchema = new Schema(
         initialized: { type: Boolean, default: false },
         lastInitialized: { type: Date },
         permissionHash: String,
+        permissionHashUpdatedAt: Date,
     },
     { versionKey: false }
 );

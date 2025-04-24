@@ -21,6 +21,7 @@ async function initializeData() {
                 initialized: true,
                 lastInitialized: new Date(),
                 permissionHash: permissionHash,
+                permissionHashUpdatedAt: new Date(),
             });
 
             console.log("Full initialization complete.");
@@ -34,6 +35,7 @@ async function initializeData() {
 
             // Also update the permissionHash to the current value.
             initRecord.permissionHash = permissionHash;
+            initRecord.permissionHashUpdatedAt = new Date();
             await initRecord.save();
             console.log("Admin role and admin user created.");
         } else {
@@ -44,6 +46,7 @@ async function initializeData() {
         if (initRecord.permissionHash !== permissionHash) {
             await createPermissions();
             initRecord.permissionHash = permissionHash;
+            initRecord.permissionHashUpdatedAt = new Date();
 
             await initRecord.save();
             console.log("Permissions updated based on new configuration.");

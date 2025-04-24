@@ -27,6 +27,14 @@ import generateQr from "../utils/generateTicket.js";
 import archiver from "archiver";
 import Category from "../models/category.js";
 import categorySchema from "../schemas/category.js";
+import {
+    fetchKpiMetrics,
+    fetchPastEventData,
+    fetchUpcomingEventData,
+    getEventsCountByCategory,
+    getEventsCountByTop10Clients,
+    getPanelUsersCountFromUserRole,
+} from "../utils/dashboardService.js";
 
 const DEFAULT_PASSWORD = process.env.DEFAULT_PASSWORD;
 const PAGE_LIMIT = 10;
@@ -275,12 +283,28 @@ export const resetPassword = asyncHandler(async (req, res, next) => {
 export const dashboardPage = asyncHandler(async (req, res, next) => {
     const pages = pagesToShow(req);
 
+    const [kpiData, upcomingEventsData, pastEventsData, eventDataByCategory, eventDataByClient, panelUsersCountByRole] =
+        await Promise.all([
+            fetchKpiMetrics(),
+            fetchUpcomingEventData(),
+            fetchPastEventData(),
+            getEventsCountByCategory(),
+            getEventsCountByTop10Clients(),
+            getPanelUsersCountFromUserRole(),
+        ]);
+
     const data = {
         page: { title: "EvenTicket Dashboard" },
         error: req.flash("error"),
         success: req.flash("success"),
         user: req.session.user,
         pages,
+        kpiData,
+        upcomingEventsData,
+        pastEventsData,
+        eventDataByCategory,
+        eventDataByClient,
+        panelUsersCountByRole,
     };
 
     return res.render("panel/pages/dashboard", data);

@@ -9,6 +9,7 @@ const ticketSchema = new Schema(
         ticketGenerationBatch: { type: Types.ObjectId, ref: "ticket_generation_batches" },
         isVerified: { type: Boolean, default: false },
         verifiedAt: Date,
+        verifiedFromClientView: Boolean,
     },
     { versionKey: false, timestamps: true }
 );

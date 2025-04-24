@@ -1,285 +1,354 @@
 {% extends "panel/layout.html" %} {% block head %}
 <style>
-    /* Light & Modern Colors for Cards */
-    .bg-light-blue {
-        background-color: #d0e7ff;
-        color: #0056b3;
+    .hover-shadow {
+        transition: box-shadow 0.3s ease;
     }
-    .bg-light-green {
-        background-color: #d4f4dd;
-        color: #2d6a4f;
+    .hover-shadow:hover {
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1) !important;
     }
-    .bg-light-orange {
-        background-color: #ffe8cc;
-        color: #c05621;
+    .icon-circle {
+        width: 2.5rem;
+        height: 2.5rem;
+        background-color: rgba(0, 123, 255, 0.1);
     }
-    /* Metric Card Style */
-    .metric-card {
-        border: 1px solid #dee2e6;
-        border-radius: 0.25rem;
-        background-color: #ffffff;
-        transition: all 0.3s ease;
+    .section-bg-1 {
+        background-color: #f0f8ff;
     }
-    .metric-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    .section-bg-2 {
+        background-color: #fef9f4;
     }
-    .metric-card .card-body {
-        text-align: center;
-        padding: 1.5rem;
+    .section-bg-3 {
+        background-color: #f4f9f4;
     }
-    .metric-card .card-header {
-        padding: 0.75rem;
+    .section-bg-4 {
+        background-color: #f9f4fa;
     }
-    .metric-icon {
-        font-size: 2rem;
-        margin-bottom: 0.5rem;
+    .card-body {
+        padding: 1rem !important;
     }
-    .metric-title {
-        font-size: 1rem;
-        margin: 0.5rem 0;
-        font-weight: 600;
-    }
-    .metric-value {
-        font-size: 1.75rem;
-        font-weight: 700;
-        margin: 0;
-    }
-    /* Section Titles */
     .section-title {
-        font-size: 1.25rem;
+        margin-bottom: 1.5rem;
         font-weight: 600;
-        margin-bottom: 1rem;
-        color: #343a40;
-    }
-    /* Table Styles for Upcoming Events */
-    .table-upcoming thead th {
-        background-color: #d0e7ff;
-        color: #0056b3;
-    }
-    /* Table Styles for Ongoing Events */
-    .table-ongoing thead th {
-        background-color: #d4f4dd;
-        color: #2d6a4f;
+        color: #495057;
     }
 </style>
 {% endblock %} {% block body %}
-
-<div class="container-fluid">
-    <div class="mt-2 mb-4">
-        <!-- Client Information Section Title -->
-        <div class="row">
-            <div class="col-12">
-                <h5 class="section-title">Client Information</h5>
-            </div>
-        </div>
-        <!-- Client Information Row -->
-        <div class="row g-3">
-            <!-- Total Clients Card -->
-            <div class="col-12 col-sm-6 col-lg-3">
-                <div class="card metric-card shadow-sm">
-                    <div class="card-header bg-light-blue">
-                        <div class="d-flex align-items-center justify-content-center">
-                            <i class="fa-solid fa-users metric-icon"></i>
-                        </div>
+<div class="container py-3">
+    <!-- CLIENT KPIs -->
+    <h4 class="section-title">Clients Overview</h4>
+    <div class="row g-3 rounded mb-4 align-items-stretch">
+        <div class="col-12 col-lg-6 col-xl-3 d-flex">
+            <div class="card hover-shadow shadow-sm flex-fill h-100">
+                <div class="card-body d-flex gap-3 align-items-center">
+                    <div class="icon-circle d-flex justify-content-center align-items-center">
+                        <i class="fas fa-users fs-4 text-primary" aria-hidden="true"></i>
                     </div>
-                    <div class="card-body">
-                        <p class="metric-title">Total Clients</p>
-                        <p class="metric-value">{{ clientInformation.totalClients }}</p>
-                    </div>
-                </div>
-            </div>
-            <!-- New Clients Card -->
-            <div class="col-12 col-sm-6 col-lg-3">
-                <div class="card metric-card shadow-sm">
-                    <div class="card-header bg-light-green">
-                        <div class="d-flex align-items-center justify-content-center">
-                            <i class="fa-solid fa-user-plus metric-icon"></i>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <p class="metric-title">New Clients (7 Days)</p>
-                        <p class="metric-value">{{ clientInformation.newClients }}</p>
+                    <div>
+                        <p class="mb-1 text-secondary small">Total Clients</p>
+                        <strong>{{ kpiData.totalClients }}</strong>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-
-    <div class="mt-2 mb-4">
-        <!-- Event Information Section Title -->
-        <div class="row">
-            <div class="col-12">
-                <h5 class="section-title">Event Information</h5>
+        <div class="col-12 col-lg-6 col-xl-3 d-flex">
+            <div class="card hover-shadow shadow-sm flex-fill h-100">
+                <div class="card-body d-flex gap-3 align-items-center">
+                    <div class="icon-circle d-flex justify-content-center align-items-center">
+                        <i class="fas fa-user-plus fs-4 text-primary" aria-hidden="true"></i>
+                    </div>
+                    <div>
+                        <p class="mb-1 text-secondary small">New Clients This Month</p>
+                        <strong>{{ kpiData.totalClientsThisMonth }}</strong>
+                    </div>
+                </div>
             </div>
         </div>
-        <!-- Event Information Row -->
-        <div class="row g-3">
-            <!-- Total Events Card -->
-            <div class="col-12 col-sm-6 col-lg-3">
-                <div class="card metric-card shadow-sm">
-                    <div class="card-header bg-light-blue">
-                        <div class="d-flex align-items-center justify-content-center">
-                            <i class="fa-solid fa-calendar-days metric-icon"></i>
-                        </div>
+        <div class="col-12 col-lg-6 col-xl-3 d-flex">
+            <div class="card hover-shadow shadow-sm flex-fill h-100">
+                <div class="card-body d-flex gap-3 align-items-center">
+                    <div class="icon-circle d-flex justify-content-center align-items-center">
+                        <i class="fas fa-user-clock fs-4 text-primary" aria-hidden="true"></i>
                     </div>
-                    <div class="card-body">
-                        <p class="metric-title">Total Events</p>
-                        <p class="metric-value">{{ eventInformation.eventCount.total }}</p>
-                    </div>
-                </div>
-            </div>
-            <!-- Ongoing Events Card -->
-            <div class="col-12 col-sm-6 col-lg-3">
-                <div class="card metric-card shadow-sm">
-                    <div class="card-header bg-light-green">
-                        <div class="d-flex align-items-center justify-content-center">
-                            <i class="fa-solid fa-spinner metric-icon"></i>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <p class="metric-title">Ongoing Events</p>
-                        <p class="metric-value">{{ eventInformation.eventCount.ongoingEvents }}</p>
-                    </div>
-                </div>
-            </div>
-            <!-- Upcoming Events Card -->
-            <div class="col-12 col-sm-6 col-lg-3">
-                <div class="card metric-card shadow-sm">
-                    <div class="card-header bg-light-orange">
-                        <div class="d-flex align-items-center justify-content-center">
-                            <i class="fa-solid fa-hourglass-start metric-icon"></i>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <p class="metric-title">Upcoming Events</p>
-                        <p class="metric-value">{{ eventInformation.eventCount.upcomingEvents }}</p>
-                    </div>
-                </div>
-            </div>
-            <!-- Past Events Card -->
-            <div class="col-12 col-sm-6 col-lg-3">
-                <div class="card metric-card shadow-sm">
-                    <div class="card-header bg-light-orange">
-                        <div class="d-flex align-items-center justify-content-center">
-                            <i class="fa-solid fa-history metric-icon"></i>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <p class="metric-title">Past Events</p>
-                        <p class="metric-value">{{ eventInformation.eventCount.pastEvents }}</p>
+                    <div>
+                        <p class="mb-1 text-secondary small">New Clients (7 Days)</p>
+                        <strong>{{ kpiData.totalClientsInLast7Days }}</strong>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="mt-2 mb-4">
-        <!-- Upcoming Events Table Section -->
-        <div class="row">
-            <div class="col-12">
-                <h5 class="section-title">Upcoming Events (Next 7 Days)</h5>
+    <!-- EVENTS KPIs -->
+    <h4 class="section-title">Events Overview</h4>
+    <div class="row g-3 rounded mb-4 align-items-stretch">
+        <div class="col-12 col-lg-6 col-xl-3 d-flex">
+            <div class="card hover-shadow shadow-sm flex-fill h-100">
+                <div class="card-body d-flex gap-3 align-items-center">
+                    <div class="icon-circle d-flex justify-content-center align-items-center">
+                        <i class="fas fa-calendar-days fs-4 text-primary" aria-hidden="true"></i>
+                    </div>
+                    <div>
+                        <p class="mb-1 text-secondary small">Total Events</p>
+                        <strong>{{ kpiData.totalEvents }}</strong>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="row g-3">
-            <div class="col-12">
-                {% if eventInformation.upcomingEventsIn7Days and eventInformation.upcomingEventsIn7Days.length > 0 %}
-                <div class="table-responsive">
-                    <table class="table table-bordered table-sm mb-0 table-upcoming">
-                        <thead>
-                            <tr>
-                                <th class="bg-light-blue">Event Name</th>
-                                <th class="bg-light-blue">Event Date</th>
-                                <th class="bg-light-blue">Client Name</th>
-                                <th class="bg-light-blue">Total Tickets</th>
-                                <th class="bg-light-blue">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for event in eventInformation.upcomingEventsIn7Days %}
-                            <tr>
-                                <td>{{ event.eventName }}</td>
-                                <td>{{ event.eventDate }}</td>
-                                <td>{{ event.clientName }}</td>
-                                <td>{{ event.totalEventTickets }}</td>
-                                <td>
-                                    <div class="d-flex gap-2">
-                                        <a
-                                            href="/panel/events/s/{{event.eventId}}"
-                                            class="btn btn-sm btn-outline-secondary">
-                                            Event Details
-                                        </a>
-                                        <a
-                                            href="/panel/clients/s/{{event.clientId}}"
-                                            class="btn btn-sm btn-outline-secondary">
-                                            Client Details
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+        <div class="col-12 col-lg-6 col-xl-3 d-flex">
+            <div class="card hover-shadow shadow-sm flex-fill h-100">
+                <div class="card-body d-flex gap-3 align-items-center">
+                    <div class="icon-circle d-flex justify-content-center align-items-center">
+                        <i class="fas fa-calendar-plus fs-4 text-primary" aria-hidden="true"></i>
+                    </div>
+                    <div>
+                        <p class="mb-1 text-secondary small">Events This Month</p>
+                        <strong>{{ kpiData.totalEventsThisMonth }}</strong>
+                    </div>
                 </div>
-                {% else %}
-                <p class="text-center mb-0 border p-2">No upcoming events in the next 7 days.</p>
-                {% endif %}
+            </div>
+        </div>
+        <div class="col-12 col-lg-6 col-xl-3 d-flex">
+            <div class="card hover-shadow shadow-sm flex-fill h-100">
+                <div class="card-body d-flex gap-3 align-items-center">
+                    <div class="icon-circle d-flex justify-content-center align-items-center">
+                        <i class="fas fa-calendar-check fs-4 text-primary" aria-hidden="true"></i>
+                    </div>
+                    <div>
+                        <p class="mb-1 text-secondary small">Upcoming Events (7 Days)</p>
+                        <strong>{{ kpiData.totalUpcomingEventsIn7Days }}</strong>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="mt-2 mb-4">
-        <!-- Ongoing Events Table Section -->
-        <div class="row">
-            <div class="col-12">
-                <h5 class="section-title">Ongoing Events</h5>
+    <!-- TICKET KPIs -->
+    <h4 class="section-title">Ticket Stats</h4>
+    <div class="row g-3 rounded mb-4 align-items-stretch">
+        <div class="col-12 col-lg-6 col-xl-3 d-flex">
+            <div class="card hover-shadow shadow-sm flex-fill h-100">
+                <div class="card-body d-flex gap-3 align-items-center">
+                    <div class="icon-circle d-flex justify-content-center align-items-center">
+                        <i class="fas fa-ticket-simple fs-4 text-primary" aria-hidden="true"></i>
+                    </div>
+                    <div>
+                        <p class="mb-1 text-secondary small">Total Tickets Generated</p>
+                        <strong>{{ kpiData.totalTicketsGenerated }}</strong>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="row g-3">
-            <div class="col-12">
-                {% if eventInformation.ongoingEvents and eventInformation.ongoingEvents.length > 0 %}
-                <div class="table-responsive">
-                    <table class="table table-bordered table-sm mb-0 table-ongoing">
-                        <thead>
-                            <tr>
-                                <th class="bg-light-green">Event Name</th>
-                                <th class="bg-light-green">Client Name</th>
-                                <th class="bg-light-green">Total Tickets</th>
-                                <th class="bg-light-green">Verified Tickets</th>
-                                <th class="bg-light-green">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for event in eventInformation.ongoingEvents %}
-                            <tr>
-                                <td>{{ event.eventName }}</td>
-                                <td>{{ event.clientName }}</td>
-                                <td>{{ event.totalEventTickets }}</td>
-                                <td>{{ event.totalEventVerifiedTickets }}</td>
-                                <td>
-                                    <div class="d-flex gap-2">
-                                        <a
-                                            href="/panel/events/s/{{event.eventId}}"
-                                            class="btn btn-sm btn-outline-secondary">
-                                            Event Details
-                                        </a>
-                                        <a
-                                            href="/panel/clients/s/{{event.clientId}}"
-                                            class="btn btn-sm btn-outline-secondary">
-                                            Client Details
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+        <div class="col-12 col-lg-6 col-xl-3 d-flex">
+            <div class="card hover-shadow shadow-sm flex-fill h-100">
+                <div class="card-body d-flex gap-3 align-items-center">
+                    <div class="icon-circle d-flex justify-content-center align-items-center">
+                        <i class="fas fa-ticket-alt fs-4 text-primary" aria-hidden="true"></i>
+                    </div>
+                    <div>
+                        <p class="mb-1 text-secondary small">Total Tickets Verified</p>
+                        <strong>{{ kpiData.totalTicketsVerified }}</strong>
+                    </div>
                 </div>
-                {% else %}
-                <p class="text-center mb-0 border p-2">No ongoing events.</p>
-                {% endif %}
+            </div>
+        </div>
+        <div class="col-12 col-lg-6 col-xl-3 d-flex">
+            <div class="card hover-shadow shadow-sm flex-fill h-100">
+                <div class="card-body d-flex gap-3 align-items-center">
+                    <div class="icon-circle d-flex justify-content-center align-items-center">
+                        <i class="fas fa-ticket fs-4 text-primary" aria-hidden="true"></i>
+                    </div>
+                    <div>
+                        <p class="mb-1 text-secondary small">Generated Today</p>
+                        <strong>{{ kpiData.totalTicketsGeneratedToday }}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-6 col-xl-3 d-flex">
+            <div class="card hover-shadow shadow-sm flex-fill h-100">
+                <div class="card-body d-flex gap-3 align-items-center">
+                    <div class="icon-circle d-flex justify-content-center align-items-center">
+                        <i class="fas fa-ticket fs-4 text-primary" aria-hidden="true"></i>
+                    </div>
+                    <div>
+                        <p class="mb-1 text-secondary small">Verified Today</p>
+                        <strong>{{ kpiData.totalTicketsVerifiedToday }}</strong>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+
+    <!-- SYSTEM DETAILS -->
+    <h4 class="section-title">System Details</h4>
+    <div class="row g-3 rounded mb-4 align-items-stretch">
+        <div class="col-12 col-lg-6 col-xl-3 d-flex">
+            <div class="card hover-shadow shadow-sm flex-fill h-100">
+                <div class="card-body d-flex gap-3 align-items-center">
+                    <div class="icon-circle d-flex justify-content-center align-items-center">
+                        <i class="fas fa-users-gear fs-4 text-primary" aria-hidden="true"></i>
+                    </div>
+                    <div>
+                        <p class="mb-1 text-secondary small">Total User Roles</p>
+                        <strong>{{ kpiData.totalUserRoles }}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-6 col-xl-3 d-flex">
+            <div class="card hover-shadow shadow-sm flex-fill h-100">
+                <div class="card-body d-flex gap-3 align-items-center">
+                    <div class="icon-circle d-flex justify-content-center align-items-center">
+                        <i class="fas fa-user-shield fs-4 text-primary" aria-hidden="true"></i>
+                    </div>
+                    <div>
+                        <p class="mb-1 text-secondary small">Total Panel Users</p>
+                        <strong>{{ kpiData.totalPanelUsers }}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h4 class="section-title">Graphical Data</h4>
+    <div class="row g-4">
+        <!-- Events by Category -->
+        <div class="col-xl-4">
+            <div class="card" style="width: 100%; height: 320px">
+                <div class="card-header text-center py-2">
+                    <h6 class="mb-0">Events by Category</h6>
+                </div>
+                <div class="card-body p-2 d-flex justify-content-center align-items-center">
+                    <div class="chart-container" style="position: relative; width: 100%; height: 230px">
+                        <canvas id="pieCategory"></canvas>
+                        <div id="noDataCategory" class="text-center text-muted" style="display: none">
+                            No data available
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Clients by Tickets -->
+        <div class="col-xl-4">
+            <div class="card" style="width: 100%; height: 320px">
+                <div class="card-header text-center py-2">
+                    <h6 class="mb-0">Top Clients by Tickets</h6>
+                </div>
+                <div class="card-body p-2 d-flex justify-content-center align-items-center">
+                    <div class="chart-container" style="position: relative; width: 100%; height: 230px">
+                        <canvas id="pieClient"></canvas>
+                        <div id="noDataClient" class="text-center text-muted" style="display: none">
+                            No data available
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel Users by Role -->
+        <div class="col-xl-4">
+            <div class="card" style="width: 100%; height: 320px">
+                <div class="card-header text-center py-2">
+                    <h6 class="mb-0">Panel Users by Role</h6>
+                </div>
+                <div class="card-body p-2 d-flex justify-content-center align-items-center">
+                    <div class="chart-container" style="position: relative; width: 100%; height: 230px">
+                        <canvas id="pieRole"></canvas>
+                        <div id="noDataRole" class="text-center text-muted" style="display: none">
+                            No data available
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        let catData = `{{ eventDataByCategory | dump | safe }}`;
+        catData = JSON.parse(catData);
+
+        let clientData = `{{ eventDataByClient | dump | safe }}`;
+        clientData = JSON.parse(clientData);
+
+        let roleData = `{{ panelUsersCountByRole | dump | safe }}`;
+        roleData = JSON.parse(roleData);
+
+        function buildPie(idCanvas, idNoData, labels, data, colors) {
+            const ctx = document.getElementById(idCanvas);
+            const noDataEl = document.getElementById(idNoData);
+
+            // If no data, hide canvas and show fallback
+            if (!data || data.length === 0 || data.every((v) => v === 0)) {
+                ctx.style.display = "none";
+                noDataEl.style.display = "block";
+                return;
+            }
+            noDataEl.style.display = "none";
+
+            new Chart(ctx, {
+                type: "pie",
+                data: {
+                    labels,
+                    datasets: [
+                        {
+                            data,
+                            backgroundColor: colors,
+                            borderColor: "#fff",
+                            borderWidth: 2,
+                        },
+                    ],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: "bottom",
+                            labels: {
+                                boxWidth: 12,
+                                padding: 6,
+                                font: { size: 10 },
+                            },
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => `${ctx.label}: ${ctx.parsed}`,
+                            },
+                        },
+                    },
+                },
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const paletteCategory = ["#4E79A7", "#F28E2C", "#E15759", "#76B7B2", "#59A14F"];
+            const paletteClient = ["#1F77B4", "#FF7F0E", "#2CA02C", "#D62728", "#9467BD"];
+            const paletteRole = ["#66C2A5", "#FC8D62", "#8DA0CB", "#E78AC3", "#A6D854"];
+
+            buildPie(
+                "pieCategory",
+                "noDataCategory",
+                catData.map((x) => x.name),
+                catData.map((x) => x.eventCount),
+                paletteCategory
+            );
+            buildPie(
+                "pieClient",
+                "noDataClient",
+                clientData.map((x) => x.clientName),
+                clientData.map((x) => x.ticketCount),
+                paletteClient
+            );
+            buildPie(
+                "pieRole",
+                "noDataRole",
+                roleData.map((x) => x.name),
+                roleData.map((x) => x.panelUsersCount),
+                paletteRole
+            );
+        });
+    </script>
 </div>
+{% endblock %} {% block javascript %}
+<script src="/chartjs/js/chart.umd.js"></script>
 {% endblock %}

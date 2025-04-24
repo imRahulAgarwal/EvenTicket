@@ -21,10 +21,10 @@
     </head>
     <body>
         {% include "panel/components/sidebar.html" %}
-        <main class="sidebar-open content d-flex flex-column">
+        <main class="sidebar-open d-flex flex-column">
             {% include "panel/components/header.html" %}
 
-            <div class="m-3 card shadow flex-grow-1 p-3 border-0">{% block body %} {% endblock %}</div>
+            <div class="m-3 card shadow flex-grow-1 p-2 border-0">{% block body %} {% endblock %}</div>
         </main>
 
         {% include "panel/components/confirmationModal.html" %}

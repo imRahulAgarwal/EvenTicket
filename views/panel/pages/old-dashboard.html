@@ -1,0 +1,285 @@
+{% extends "panel/layout.html" %} {% block head %}
+<style>
+    /* Light & Modern Colors for Cards */
+    .bg-light-blue {
+        background-color: #d0e7ff;
+        color: #0056b3;
+    }
+    .bg-light-green {
+        background-color: #d4f4dd;
+        color: #2d6a4f;
+    }
+    .bg-light-orange {
+        background-color: #ffe8cc;
+        color: #c05621;
+    }
+    /* Metric Card Style */
+    .metric-card {
+        border: 1px solid #dee2e6;
+        border-radius: 0.25rem;
+        background-color: #ffffff;
+        transition: all 0.3s ease;
+    }
+    .metric-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    .metric-card .card-body {
+        text-align: center;
+        padding: 1.5rem;
+    }
+    .metric-card .card-header {
+        padding: 0.75rem;
+    }
+    .metric-icon {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+    .metric-title {
+        font-size: 1rem;
+        margin: 0.5rem 0;
+        font-weight: 600;
+    }
+    .metric-value {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin: 0;
+    }
+    /* Section Titles */
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: #343a40;
+    }
+    /* Table Styles for Upcoming Events */
+    .table-upcoming thead th {
+        background-color: #d0e7ff;
+        color: #0056b3;
+    }
+    /* Table Styles for Ongoing Events */
+    .table-ongoing thead th {
+        background-color: #d4f4dd;
+        color: #2d6a4f;
+    }
+</style>
+{% endblock %} {% block body %}
+
+<div class="container-fluid">
+    <div class="mt-2 mb-4">
+        <!-- Client Information Section Title -->
+        <div class="row">
+            <div class="col-12">
+                <h5 class="section-title">Client Information</h5>
+            </div>
+        </div>
+        <!-- Client Information Row -->
+        <div class="row g-3">
+            <!-- Total Clients Card -->
+            <div class="col-12 col-sm-6 col-lg-3">
+                <div class="card metric-card shadow-sm">
+                    <div class="card-header bg-light-blue">
+                        <div class="d-flex align-items-center justify-content-center">
+                            <i class="fa-solid fa-users metric-icon"></i>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p class="metric-title">Total Clients</p>
+                        <p class="metric-value">{{ clientInformation.totalClients }}</p>
+                    </div>
+                </div>
+            </div>
+            <!-- New Clients Card -->
+            <div class="col-12 col-sm-6 col-lg-3">
+                <div class="card metric-card shadow-sm">
+                    <div class="card-header bg-light-green">
+                        <div class="d-flex align-items-center justify-content-center">
+                            <i class="fa-solid fa-user-plus metric-icon"></i>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p class="metric-title">New Clients (7 Days)</p>
+                        <p class="metric-value">{{ clientInformation.newClients }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-2 mb-4">
+        <!-- Event Information Section Title -->
+        <div class="row">
+            <div class="col-12">
+                <h5 class="section-title">Event Information</h5>
+            </div>
+        </div>
+        <!-- Event Information Row -->
+        <div class="row g-3">
+            <!-- Total Events Card -->
+            <div class="col-12 col-sm-6 col-lg-3">
+                <div class="card metric-card shadow-sm">
+                    <div class="card-header bg-light-blue">
+                        <div class="d-flex align-items-center justify-content-center">
+                            <i class="fa-solid fa-calendar-days metric-icon"></i>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p class="metric-title">Total Events</p>
+                        <p class="metric-value">{{ eventInformation.eventCount.total }}</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Ongoing Events Card -->
+            <div class="col-12 col-sm-6 col-lg-3">
+                <div class="card metric-card shadow-sm">
+                    <div class="card-header bg-light-green">
+                        <div class="d-flex align-items-center justify-content-center">
+                            <i class="fa-solid fa-spinner metric-icon"></i>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p class="metric-title">Ongoing Events</p>
+                        <p class="metric-value">{{ eventInformation.eventCount.ongoingEvents }}</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Upcoming Events Card -->
+            <div class="col-12 col-sm-6 col-lg-3">
+                <div class="card metric-card shadow-sm">
+                    <div class="card-header bg-light-orange">
+                        <div class="d-flex align-items-center justify-content-center">
+                            <i class="fa-solid fa-hourglass-start metric-icon"></i>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p class="metric-title">Upcoming Events</p>
+                        <p class="metric-value">{{ eventInformation.eventCount.upcomingEvents }}</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Past Events Card -->
+            <div class="col-12 col-sm-6 col-lg-3">
+                <div class="card metric-card shadow-sm">
+                    <div class="card-header bg-light-orange">
+                        <div class="d-flex align-items-center justify-content-center">
+                            <i class="fa-solid fa-history metric-icon"></i>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p class="metric-title">Past Events</p>
+                        <p class="metric-value">{{ eventInformation.eventCount.pastEvents }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-2 mb-4">
+        <!-- Upcoming Events Table Section -->
+        <div class="row">
+            <div class="col-12">
+                <h5 class="section-title">Upcoming Events (Next 7 Days)</h5>
+            </div>
+        </div>
+        <div class="row g-3">
+            <div class="col-12">
+                {% if eventInformation.upcomingEventsIn7Days and eventInformation.upcomingEventsIn7Days.length > 0 %}
+                <div class="table-responsive">
+                    <table class="table table-bordered table-sm mb-0 table-upcoming">
+                        <thead>
+                            <tr>
+                                <th class="bg-light-blue">Event Name</th>
+                                <th class="bg-light-blue">Event Date</th>
+                                <th class="bg-light-blue">Client Name</th>
+                                <th class="bg-light-blue">Total Tickets</th>
+                                <th class="bg-light-blue">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for event in eventInformation.upcomingEventsIn7Days %}
+                            <tr>
+                                <td>{{ event.eventName }}</td>
+                                <td>{{ event.eventDate }}</td>
+                                <td>{{ event.clientName }}</td>
+                                <td>{{ event.totalEventTickets }}</td>
+                                <td>
+                                    <div class="d-flex gap-2">
+                                        <a
+                                            href="/panel/events/s/{{event.eventId}}"
+                                            class="btn btn-sm btn-outline-secondary">
+                                            Event Details
+                                        </a>
+                                        <a
+                                            href="/panel/clients/s/{{event.clientId}}"
+                                            class="btn btn-sm btn-outline-secondary">
+                                            Client Details
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-center mb-0 border p-2">No upcoming events in the next 7 days.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-2 mb-4">
+        <!-- Ongoing Events Table Section -->
+        <div class="row">
+            <div class="col-12">
+                <h5 class="section-title">Ongoing Events</h5>
+            </div>
+        </div>
+        <div class="row g-3">
+            <div class="col-12">
+                {% if eventInformation.ongoingEvents and eventInformation.ongoingEvents.length > 0 %}
+                <div class="table-responsive">
+                    <table class="table table-bordered table-sm mb-0 table-ongoing">
+                        <thead>
+                            <tr>
+                                <th class="bg-light-green">Event Name</th>
+                                <th class="bg-light-green">Client Name</th>
+                                <th class="bg-light-green">Total Tickets</th>
+                                <th class="bg-light-green">Verified Tickets</th>
+                                <th class="bg-light-green">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for event in eventInformation.ongoingEvents %}
+                            <tr>
+                                <td>{{ event.eventName }}</td>
+                                <td>{{ event.clientName }}</td>
+                                <td>{{ event.totalEventTickets }}</td>
+                                <td>{{ event.totalEventVerifiedTickets }}</td>
+                                <td>
+                                    <div class="d-flex gap-2">
+                                        <a
+                                            href="/panel/events/s/{{event.eventId}}"
+                                            class="btn btn-sm btn-outline-secondary">
+                                            Event Details
+                                        </a>
+                                        <a
+                                            href="/panel/clients/s/{{event.clientId}}"
+                                            class="btn btn-sm btn-outline-secondary">
+                                            Client Details
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-center mb-0 border p-2">No ongoing events.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
