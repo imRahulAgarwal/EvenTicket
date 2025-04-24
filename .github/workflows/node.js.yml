@@ -1,0 +1,34 @@
+name: EvenTicket
+
+on:
+    push:
+        branches: ["main"]
+
+jobs:
+    build:
+        runs-on: self-hosted
+        steps:
+            - name: Checkout the code
+              uses: actions/checkout@v4
+              with:
+                  clean: false
+                  fetch-depth: 0
+
+    server:
+        needs: build
+        runs-on: self-hosted
+        strategy:
+            matrix:
+                node-version: [22.x]
+
+        steps:
+            - name: Create .env file
+              run: echo "${{ secrets.PRODUCTION_ENV }}" > .env
+
+            - name: Install Node Modules
+              run: npm ci
+
+            - name: Start or Re-Start PM2 process
+              run: |
+                  pm2 stop eventicket >> /dev/null 2>&1 || true
+                  pm2 start server.js --name eventicket
