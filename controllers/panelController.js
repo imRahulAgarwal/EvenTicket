@@ -2799,7 +2799,9 @@ export const verifyTicket = asyncHandler(async (req, res, next) => {
         return res.redirect(`/panel/verification/${event._id}`);
     }
 
+    ticket.set("verifiedAt", dayjs());
     ticket.set("isVerified", true);
+    ticket.set("verifiedFromClientView", false);
     await ticket.save();
 
     req.flash("success", "Ticket verified");

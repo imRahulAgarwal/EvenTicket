@@ -1,3 +1,4 @@
+import Client from "../models/client.js";
 import PanelUser from "../models/panel-user.js";
 import asyncHandler from "./asyncMiddleware.js";
 
@@ -55,3 +56,29 @@ export const checkPermission = (requiredPermission) => (req, res, next) => {
 
     return next();
 };
+
+export async function isClientNotAuthenticated(req, res, next) {
+    if (req.session && req.session.user) {
+        return res.redirect("/client");
+    }
+    return next();
+}
+
+export const isClientAuthenticated = asyncHandler(async (req, res, next) => {
+    let authUser = req.session?.user;
+    if (!authUser) {
+        req.flash("error", "Please login to continue");
+        return res.redirect("/client/login");
+    }
+
+    let user = await Client.findOne({ _id: authUser.id, isDeleted: false });
+    if (!user) {
+        res.clearCookie("connect.sid");
+        delete req.session["user"];
+        return res.redirect("/client/login");
+    }
+
+    req.user = user;
+
+    return next();
+});

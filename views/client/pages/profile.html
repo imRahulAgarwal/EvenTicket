@@ -1,0 +1,113 @@
+{% extends "client/layout.html" %}
+{% block head %}
+<style>
+    /* Ensure toggle icons have consistent width and alignment */
+    .toggle-icon {
+        width: 2.5rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+</style>
+{% endblock %} {% block body %}
+<div class="container my-3">
+    <div class="row justify-content-center">
+        <!-- Profile Information Card -->
+        <div class="col-md-8 col-lg-6 mb-4">
+            <div class="card shadow-sm border rounded">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Profile Information</h4>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-4">Name</dt>
+                        <dd class="col-sm-8 text-wrap">{{ user.name }}</dd>
+                        <dt class="col-sm-4">Email</dt>
+                        <dd class="col-sm-8 text-wrap">{{ user.email }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+        <!-- Change Password Card -->
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm border rounded">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">Change Password</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="/client/change-password">
+                        <div class="mb-3">
+                            <label for="oldPassword" class="form-label">Old Password</label>
+                            <div class="input-group">
+                                <input
+                                    type="password"
+                                    class="form-control"
+                                    id="oldPassword"
+                                    name="oldPassword"
+                                    placeholder="Enter current password" />
+                                <span
+                                    class="input-group-text toggle-icon"
+                                    onclick="togglePassword('oldPassword', this)">
+                                    <i class="fa-solid fa-eye"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="newPassword" class="form-label">New Password</label>
+                            <div class="input-group">
+                                <input
+                                    type="password"
+                                    class="form-control"
+                                    id="newPassword"
+                                    name="newPassword"
+                                    placeholder="Enter new password" />
+                                <span
+                                    class="input-group-text toggle-icon"
+                                    onclick="togglePassword('newPassword', this)">
+                                    <i class="fa-solid fa-eye"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label for="confirmPassword" class="form-label">Confirm New Password</label>
+                            <div class="input-group">
+                                <input
+                                    type="password"
+                                    class="form-control"
+                                    id="confirmPassword"
+                                    name="confirmPassword"
+                                    placeholder="Confirm new password" />
+                                <span
+                                    class="input-group-text toggle-icon"
+                                    onclick="togglePassword('confirmPassword', this)">
+                                    <i class="fa-solid fa-eye"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success">Update Password</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %} {% block javascript %}
+<script>
+    function togglePassword(fieldId, sclientement) {
+        const passwordField = document.getElementById(fieldId);
+        const icon = sclientement.querySelector("i");
+        if (passwordField.type === "password") {
+            passwordField.type = "text";
+            icon.classList.remove("fa-eye");
+            icon.classList.add("fa-eye-slash");
+        } else {
+            passwordField.type = "password";
+            icon.classList.remove("fa-eye-slash");
+            icon.classList.add("fa-eye");
+        }
+    }
+</script>
+{% endblock %}

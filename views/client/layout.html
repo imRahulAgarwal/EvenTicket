@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap"
+            rel="stylesheet" />
+        <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="/font-awesome/css/all.min.css" />
+        <link rel="stylesheet" href="/select2/css/select2.min.css" />
+        <link rel="stylesheet" href="/toastr/css/toastr.min.css" />
+        <link rel="stylesheet" href="/dist/css/styles.css" />
+        <link rel="stylesheet" href="/select2/css/select2-bootstrap-5-theme.min.css" />
+        {% block head %} {% endblock %}
+
+        <title>{{ page.title }}</title>
+    </head>
+    <body>
+        {% include "client/components/sidebar.html" %}
+        <main class="sidebar-open d-flex flex-column">
+            {% include "client/components/header.html" %}
+
+            <div class="m-3 card shadow flex-grow-1 p-2 border-0">{% block body %} {% endblock %}</div>
+        </main>
+
+        {% include "client/components/confirmationModal.html" %}
+        <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
+        <script src="/jQuery/jQuery.min.js"></script>
+        <script src="/select2/js/select2.full.min.js"></script>
+        <script src="/toastr/js/toastr.min.js"></script>
+        <script src="/dist/js/script.js"></script>
+        <script>
+            toastr.options = {
+                closeButton: true,
+                debug: false,
+                newestOnTop: true,
+                progressBar: true,
+                positionClass: "toast-bottom-right",
+                preventDuplicates: false,
+                onclick: null,
+                showDuration: "300",
+                hideDuration: "1000",
+                timeOut: "3000",
+                extendedTimeOut: "3000",
+                showEasing: "swing",
+                hideEasing: "linear",
+                showMethod: "fadeIn",
+                hideMethod: "fadeOut",
+            };
+
+            $(document).ready(function () {
+                let confirmationModal = $("#confirmationModal");
+                $(confirmationModal).on("hide.bs.modal", function () {
+                    $(confirmationModal).find("form").attr("action", "");
+                    $(confirmationModal).attr("aria-hidden", true);
+                });
+            });
+        </script>
+        {% include "client/components/toasts.html" %} {% block javascript %} {% endblock %}
+    </body>
+</html>

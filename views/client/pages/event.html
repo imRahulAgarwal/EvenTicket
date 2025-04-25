@@ -1,0 +1,209 @@
+{% extends "client/layout.html" %} {% block head %}
+
+<link rel="stylesheet" href="/datatables/css/datatables.min.css" />
+<style>
+    /* Adjust canvas styling */
+    #canvas,
+    #designCanvas {
+        border: 1px solid #000;
+        width: 100%;
+        height: auto;
+        display: block;
+        margin: 10px 0;
+    }
+    /* Minimal modern card styling */
+    .card {
+        border: none;
+        border-radius: 0.4rem;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+    .card-header {
+        background-color: #f8f9fa;
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid #dee2e6;
+    }
+    .card-body {
+        padding: 1rem;
+    }
+    /* Header adjustments */
+    .heading {
+        font-size: 1.5rem;
+        margin-bottom: 0;
+    }
+    /* Dropdown icon style */
+    .dropdown i {
+        cursor: pointer;
+    }
+    /* Reduce spacing on buttons */
+    .btn-sm {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.875rem;
+    }
+</style>
+{% endblock %} {% block body %}
+
+<div class="container-fluid py-3">
+    <div class="d-flex justify-content-between align-items-center border-bottom pb-2">
+        <h1 class="heading mb-0">Event Details</h1>
+    </div>
+
+    <div class="d-flex flex-column flex-xl-row gap-3 my-3">
+        <!-- Left Column: Event & Client Info -->
+        <div class="d-flex flex-column flex-sm-row flex-xl-column gap-3">
+            <div class="card flex-grow-1">
+                <div class="card-body">
+                    <div class="mb-2 border-bottom pb-2">
+                        <small class="text-muted">Event Name</small>
+                        <h5 class="mb-0">{{ event.eventName }}</h5>
+                    </div>
+                    <div class="mb-2 border-bottom pb-2">
+                        <small class="text-muted">Event Date</small>
+                        <h5 class="mb-0">{{ event.eventDate }}</h5>
+                    </div>
+                    <div>
+                        <small class="text-muted">Category</small>
+                        <h5 class="mb-0">{{ event.categoryName }}</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Right Column: Ticket Types -->
+        <div class="flex-grow-1">
+            <div class="card h-100">
+                <div class="card-header d-flex flex-column flex-sm-row justify-content-between align-items-center pb-2">
+                    <h5 class="mb-0">Event Ticket Types</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-2" id="ticketTypeRow">
+                        {% if event.ticketTypes.length %} {% for ticketType in event.ticketTypes %}
+                        <div class="col-12 col-md-6">
+                            <div class="card position-relative">
+                                <div class="card-body p-2">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <small class="text-muted">Name</small>
+                                            <h6 class="mb-0">{{ ticketType.name }}</h6>
+                                        </div>
+                                        <div class="dropdown">
+                                            <i
+                                                class="fa-solid fa-ellipsis-vertical"
+                                                data-bs-toggle="dropdown"
+                                                aria-expanded="false"></i>
+                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                <li>
+                                                    <button
+                                                        type="button"
+                                                        class="dropdown-item viewDesignButton"
+                                                        data-image="{{ ticketType.designPath }}"
+                                                        data-qr-dimensions="{{ ticketType.qrDimensions|dump }}"
+                                                        data-qr-positions="{{ ticketType.qrPositions|dump }}">
+                                                        View Ticket Design
+                                                    </button>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Tickets Generated</small>
+                                        <h6 class="mb-0">{{ ticketType.ticketCount or 0 }}</h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %} {% else %}
+                        <div class="col-12 text-center text-danger">
+                            <p class="mb-0">Ticket Types for the event not created yet!</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if event.allowVerificationByClient %}
+    <!-- Verification Form Card -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-white border-0">
+            <h2 class="h5 mb-0">Ticket Verification</h2>
+        </div>
+        <div class="card-body">
+            <form method="post" action="/client/verification/{{ event._id }}/ticket">
+                <div class="form-floating mb-4">
+                    <input
+                        type="text"
+                        id="ticketData"
+                        name="ticketData"
+                        class="form-control"
+                        placeholder="Scan the QR Code"
+                        required />
+                    <label for="ticketData">Ticket Data</label>
+                </div>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="fa-solid fa-check-circle me-2"></i> Verify
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Design Modal -->
+<div class="modal fade" id="designModal" tabindex="-1" aria-labelledby="designModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header py-2">
+                <h5 class="modal-title" id="designModalLabel">Ticket Type Design</h5>
+                <button type="button" class="btn-close btn-sm" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body py-2">
+                <canvas id="designCanvas"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %} {% block javascript %}
+<script src="/dist/js/ticket-type.js"></script>
+<script src="/datatables/js/datatables.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        let ttRow = $("#ticketTypeRow"); // Row in which all the ticket types will be displayed
+
+        // When View Ticket Design Button is clicked
+        ttRow.on("click", ".viewDesignButton", function () {
+            let imgSrc = $(this).data("image");
+            let qrPositions = $(this).data("qr-positions");
+            let qrDimensions = $(this).data("qr-dimensions");
+
+            let ttDesignImage = new Image();
+            let ttDesignCanvas = $("#designCanvas").get(0);
+            let ttdCtx = ttDesignCanvas.getContext("2d");
+
+            ttDesignImage.onload = function () {
+                // Set canvas width to the image's actual width
+                ttDesignCanvas.width = ttDesignImage.width;
+                ttDesignCanvas.height = ttDesignImage.height;
+
+                // Draw the image without distortion
+                ttdCtx.clearRect(0, 0, ttDesignCanvas.width, ttDesignCanvas.height);
+                ttdCtx.drawImage(ttDesignImage, 0, 0, ttDesignImage.width, ttDesignImage.height);
+
+                // Draw QR Code box
+                ttdCtx.strokeStyle = "red";
+                ttdCtx.lineWidth = 5;
+                ttdCtx.strokeRect(qrPositions.left, qrPositions.top, qrDimensions.width, qrDimensions.height);
+            };
+
+            ttDesignImage.src = imgSrc;
+
+            let ttDesignModal = $("#designModal");
+            ttDesignModal.modal("show");
+        });
+    });
+</script>
+
+{% endblock %}

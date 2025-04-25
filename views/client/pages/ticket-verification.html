@@ -1,0 +1,54 @@
+{% extends "client/layout.html" %} {% block body %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">Ticket Verification Events</h1>
+    </div>
+
+    <!-- Event Details Card -->
+    <div class="card shadow-sm mb-5">
+        <div class="card-header bg-white border-0">
+            <h2 class="h5 mb-0">Event Details</h2>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-12 col-md-6">
+                    <p class="mb-1 text-muted">Event Name:</p>
+                    <h3 class="h6">{{ event.name }}</h3>
+                </div>
+                <div class="col-12 col-md-6">
+                    <p class="mb-1 text-muted">Event Date:</p>
+                    <h3 class="h6">{{ event.dateTime }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Verification Form Card -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-white border-0">
+            <h2 class="h5 mb-0">Ticket Verification</h2>
+        </div>
+        <div class="card-body">
+            <form method="post" action="/client/verification/{{ event._id }}/ticket">
+                <div class="form-floating mb-4">
+                    <input
+                        type="text"
+                        id="ticketData"
+                        name="ticketData"
+                        class="form-control"
+                        placeholder="Scan the QR Code"
+                        required />
+                    <label for="ticketData">Ticket Data</label>
+                </div>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="fa-solid fa-check-circle me-2"></i> Verify
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} {% block javascript %}
+<!-- (Bootstrap 5.3.3 JS bundle is globally loaded) -->
+{% endblock %}

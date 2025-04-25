@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap"
+            rel="stylesheet" />
+
+        <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="/font-awesome/css/all.min.css" />
+        <link rel="stylesheet" href="/select2/css/select2.min.css" />
+        <link rel="stylesheet" href="/toastr/css/toastr.min.css" />
+        <link rel="stylesheet" href="/dist/css/styles.css" />
+
+        <title>{{ page.title }}</title>
+    </head>
+    <body>
+        <main class="h-100 d-flex">
+            <div class="m-auto p-2">
+                <div class="card customCard shadow p-4">
+                    <div class="mb-3 d-flex flex-column row-gap-2">
+                        <h2 class="text-center heading">LOGIN</h2>
+                        <p class="message text-center">Welcome back! Enter your credentials to continue</p>
+                    </div>
+                    <form action="/client/login" method="post" id="loginForm">
+                        <div class="mb-3">
+                            <label for="email" class="form-label mb-1">E-Mail</label>
+                            <div class="input-group">
+                                <input type="email" class="form-control" id="email" name="email" />
+                                <span class="input-group-text iconDiv">
+                                    <i class="fa-solid fa-envelope"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label mb-1">Password</label>
+                            <div class="input-group" id="passwordDiv">
+                                <input type="password" class="form-control" id="password" name="password" />
+                                <span class="input-group-text iconDiv" for="password">
+                                    <i class="fa-solid fa-lock"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <button class="w-100 btn btn-primary submitButton">Login</button>
+
+                        <div class="text-center mt-3">
+                            <a href="/client/forgot-password" class="redirectLink">Forgot Password?</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+
+        <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
+        <script src="/jQuery/jQuery.min.js"></script>
+        <script src="/select2/js/select2.full.min.js"></script>
+        <script src="/toastr/js/toastr.min.js"></script>
+        <script>
+            toastr.options = {
+                closeButton: true,
+                debug: false,
+                newestOnTop: true,
+                progressBar: true,
+                positionClass: "toast-bottom-right",
+                preventDuplicates: false,
+                onclick: null,
+                showDuration: "300",
+                hideDuration: "1000",
+                timeOut: "3000",
+                extendedTimeOut: "3000",
+                showEasing: "swing",
+                hideEasing: "linear",
+                showMethod: "fadeIn",
+                hideMethod: "fadeOut",
+            };
+
+            $(document).ready(function () {
+                let passwordDiv = $("#passwordDiv");
+                $(passwordDiv)
+                    .find(".fa-solid")
+                    .on("click", function () {
+                        $(this).toggleClass("fa-lock fa-lock-open");
+                        let passwordField = $("#password");
+                        if ($(this).hasClass("fa-lock-open")) {
+                            passwordField.attr("type", "text");
+                        } else {
+                            passwordField.attr("type", "password");
+                        }
+                    });
+            });
+        </script>
+        {% include "client/components/toasts.html" %}
+    </body>
+</html>
