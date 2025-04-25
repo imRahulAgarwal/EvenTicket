@@ -464,7 +464,7 @@ export const readClients = asyncHandler(async (req, res, next) => {
                     { $match: matchQuery },
                     { $sort: sortQuery },
                     { $skip: start },
-                    { $limit: length },
+                    ...(length ? [{ $limit: length }] : []),
                     {
                         $project: {
                             _id: 1,
@@ -666,7 +666,7 @@ export const readCategories = asyncHandler(async (req, res, next) => {
                     { $match: matchQuery },
                     { $sort: sortQuery },
                     { $skip: start },
-                    { $limit: length },
+                    ...(length ? [{ $limit: length }] : []),
                     { $project: { _id: 1, name: 1 } },
                 ],
             },
@@ -988,7 +988,7 @@ export const readEvents = asyncHandler(async (req, res, next) => {
                     { $unwind: { path: "$client", preserveNullAndEmptyArrays: true } },
                     { $sort: sortQuery },
                     { $skip: start },
-                    { $limit: length },
+                    ...(length ? [{ $limit: length }] : []),
                     {
                         $project: {
                             _id: 1,
@@ -1313,6 +1313,9 @@ export const readGeneratedTickets = asyncHandler(async (req, res, next) => {
     length = parseInt(length, 10) || PAGE_LIMIT;
     search = search && search.value ? String(search.value.trim()) : "";
     start = parseInt(start, 10) || 0;
+    if (length === -1) {
+        length = 0;
+    }
 
     const { eventId } = req.params;
     if (!validateObjectId(eventId)) {
@@ -1344,7 +1347,7 @@ export const readGeneratedTickets = asyncHandler(async (req, res, next) => {
         { $match: { eventId: new Types.ObjectId(eventId) } },
         { $sort: sortQuery },
         { $skip: start },
-        { $limit: length },
+        ...(length ? [{ $limit: length }] : []),
         {
             $project: {
                 createdAt: "$createdAt",
@@ -1561,6 +1564,9 @@ export const batchTicketTypeData = asyncHandler(async (req, res, next) => {
     start = parseInt(start, 10) || 0;
     length = parseInt(length, 10) || PAGE_LIMIT;
     search = search && search.value ? String(search.value.trim()) : "";
+    if (length === -1) {
+        length = 0;
+    }
 
     const searchQuery = {};
 
@@ -1617,7 +1623,7 @@ export const batchTicketTypeData = asyncHandler(async (req, res, next) => {
                                 { $match: searchQuery },
                                 { $sort: sortQuery },
                                 { $skip: start },
-                                { $limit: length },
+                                ...(length ? [{ $limit: length }] : []),
                                 {
                                     $project: {
                                         _id: 1,
@@ -1650,9 +1656,9 @@ export const batchTicketTypeData = asyncHandler(async (req, res, next) => {
     // Build the aggregation pipeline
     let information = await TicketGenerationBatch.aggregate(aggregateQuery);
 
-    if (!information.length) {
-        return res.status(400).json({ success: false, error: "Details not found" });
-    }
+    // if (!information.length) {
+    //     return res.status(400).json({ success: false, error: "Details not found" });
+    // }
 
     const result = information[0];
 
@@ -2049,7 +2055,7 @@ export const readRoles = asyncHandler(async (req, res, next) => {
                     { $match: matchQuery },
                     { $sort: sortQuery },
                     { $skip: start },
-                    { $limit: length },
+                    ...(length ? [{ $limit: length }] : []),
                     {
                         $project: {
                             _id: 1,
@@ -2377,7 +2383,7 @@ export const readPanelUsers = asyncHandler(async (req, res, next) => {
                     },
                     { $sort: sortQuery },
                     { $skip: start },
-                    { $limit: length },
+                    ...(length ? [{ $limit: length }] : []),
                     {
                         $project: {
                             _id: 1,
@@ -2690,7 +2696,7 @@ export const readTicketVerificationEvents = asyncHandler(async (req, res, next) 
                     { $match: searchQuery },
                     { $sort: sortQuery },
                     { $skip: start },
-                    { $limit: length },
+                    ...(length ? [{ $limit: length }] : []),
                     { $project: { _id: 1, name: 1, dateTime: 1 } },
                 ],
             },

@@ -7,22 +7,24 @@ import fs from "fs";
 async function generateQr({ generationId, ticketTypeId, eventId, ticketCount, ticketData }) {
     let { qrDimensions, qrPositions, designPath } = ticketData;
 
+    const qrDataSet = new Set();
+    for (let index = 0; index < ticketCount; index++) {
+        qrDataSet.add(nanoid(12));
+    }
+
     let failedCount = 0;
     let successCount = 0;
 
-    for (let index = 0; index < ticketCount; index++) {
-        const qrData = nanoid(12);
+    const sharpFile = await sharp(designPath).metadata();
+    const ext = sharpFile.format;
+
+    const folder = `uploads/events/${eventId}/GeneratedTickets/${generationId}/${ticketTypeId}`;
+    if (!fs.existsSync(folder)) {
+        fs.mkdirSync(folder, { recursive: true });
+    }
+
+    for (const qrData of qrDataSet) {
         const qrBuffer = await qr.toBuffer(qrData);
-
-        const sharpFile = await sharp(designPath).metadata();
-        const ext = sharpFile.format;
-
-        let folder = `uploads/events/${eventId}/GeneratedTickets/${generationId}/${ticketTypeId}`;
-
-        if (!fs.existsSync(folder)) {
-            fs.mkdirSync(folder, { recursive: true });
-        }
-
         let imagePath = `${folder}/${qrData}.${ext}`;
         sharp(qrBuffer)
             .resize(qrDimensions.width, qrDimensions.height)

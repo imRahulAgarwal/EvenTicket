@@ -34,7 +34,7 @@ const sidebarLinks = [
     {
         name: "Verification",
         href: "/panel/verification",
-        icon: '<i class="fa-solid fa-calendar-days icon"></i>',
+        icon: '<i class="fa-solid fa-circle-check icon"></i>',
         uniqueName: ["verify_ticket"],
         isActive: false,
         isAdmin: false,

@@ -96,8 +96,8 @@ export async function fetchUpcomingEventData() {
                     { $unwind: { path: "$totalTicketsVerified", preserveNullAndEmptyArrays: true } },
                     {
                         $addFields: {
-                            totalTicketsGenerated: { $ifNull: ["$totalTicketsGenerated", 0] },
-                            totalTicketsVerified: { $ifNull: ["$totalTicketsVerified", 0] },
+                            totalTicketsGenerated: { $ifNull: ["$totalTicketsGenerated.count", 0] },
+                            totalTicketsVerified: { $ifNull: ["$totalTicketsVerified.count", 0] },
                         },
                     },
                     {
