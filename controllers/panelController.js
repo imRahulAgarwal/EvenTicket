@@ -1171,7 +1171,7 @@ export const updateEventPage = asyncHandler(async (req, res, next) => {
         return res.redirect("/panel/events");
     }
 
-    event.dateTime = dayjs(event.dateTime).format("YYYY-MM-DDTHH:mm");
+    // event.dateTime = dayjs(event.dateTime).format("YYYY-MM-DDTHH:mm");
 
     // const ticketTypes = await TicketType.find({ eventId, isDeleted: false });
     // ticketTypes.forEach((ticketType) => (ticketType.designPath =  "/" + ticketType.designPath));

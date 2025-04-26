@@ -85,8 +85,14 @@
 </div>
 
 {% endblock %} {% block javascript %}
+<script src="/moment/core-2.30.1/moment-core.js"></script>
+<script src="/moment/timezone-0.5.48-2025b/moment-timezone.js"></script>
 <script>
     $(document).ready(function () {
+        const eventDateTime = $("#eventDateTime");
+        const userTz = moment.tz.guess() || "Asia/Kolkata";
+        eventDateTime.val(moment("{{event.dateTime}}").tz(userTz).format("YYYY-MM-DDTHH:mm"));
+
         const categorySelect2 = $("#categoryId");
         categorySelect2.select2({
             placeholder: "Select a category",
