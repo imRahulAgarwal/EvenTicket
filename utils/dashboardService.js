@@ -1,27 +1,23 @@
 import Category from "../models/category.js";
 import Client from "../models/client.js";
 import ClientEvent from "../models/event.js";
-import Init from "../models/init.js";
 import PanelUser from "../models/panel-user.js";
 import UserRole from "../models/role.js";
-import Permission from "../models/permission.js";
-import TicketGenerationBatch from "../models/ticket-generation-batch.js";
 import Ticket from "../models/ticket.js";
-import TicketType from "../models/ticket-type.js";
 import dayjs from "dayjs";
 
 // KPI stands for Key Permformance Indicator
 export async function fetchKpiMetrics() {
-    const curretTime = dayjs();
+    const curretTime = dayjs().toDate();
 
-    const startOfDay = dayjs().startOf("day");
-    const endOfDay = dayjs().endOf("day");
+    const startOfDay = dayjs().startOf("day").toDate();
+    const endOfDay = dayjs().endOf("day").toDate();
 
-    const startDateOfMonth = dayjs().startOf("month");
-    const endDateOfMonth = dayjs().endOf("month");
+    const startDateOfMonth = dayjs().startOf("month").toDate();
+    const endDateOfMonth = dayjs().endOf("month").toDate();
 
-    const before7Days = dayjs().subtract(7, "days").startOf("day");
-    const after7Days = dayjs().add(7, "days").endOf("day");
+    const before7Days = dayjs().subtract(7, "days").startOf("day").toDate();
+    const after7Days = dayjs().add(7, "days").endOf("day").toDate();
 
     const kpiData = await Promise.all([
         Client.countDocuments({ isDeleted: false }), // Total Clients

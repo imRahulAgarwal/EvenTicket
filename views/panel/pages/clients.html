@@ -95,6 +95,8 @@
 </div>
 {% endif %} {% endblock %} {% block javascript %}
 <script src="/datatables/js/datatables.min.js"></script>
+<script src="/moment/core-2.30.1/moment-core.js"></script>
+<script src="/moment/timezone-0.5.48-2025b/moment-timezone.js"></script>
 
 <script>
     $(document).ready(function () {
@@ -133,7 +135,12 @@
                 { data: "name" },
                 { data: "email", orderable: false },
                 { data: "number", orderable: false },
-                { data: "createdAt" },
+                {
+                    data: function (row, type, set) {
+                        const userTz = moment.tz.guess() || "Asia/Kolkata";
+                        return moment(row.createdAt).tz(userTz).format("dddd, DD.MM.YYYY, hh:mm A");
+                    },
+                },
                 {
                     data: function (row) {
                         let showReadUi = "{{showReadUi}}";

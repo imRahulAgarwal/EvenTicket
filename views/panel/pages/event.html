@@ -62,7 +62,7 @@
                     </div>
                     <div class="mb-2 border-bottom pb-2">
                         <small class="text-muted">Event Date</small>
-                        <h5 class="mb-0">{{ event.eventDate }}</h5>
+                        <h5 class="mb-0" id="eventDate">{{ event.eventDate }}</h5>
                     </div>
                     <div>
                         <small class="text-muted">Category</small>
@@ -300,7 +300,7 @@
                     </div>
                     <div class="mb-3">
                         <label for="ticketQuantity" class="form-label">Quantity</label>
-                        <input type="number" id="ticketQuantity" class="form-control" min="1" value="0" />
+                        <input type="number" id="ticketQuantity" class="form-control" />
                     </div>
                     <button type="button" class="btn btn-secondary" id="addTicketTypeBtn">Add Ticket Type</button>
                     <div id="selectedTicketTypes" class="mt-3"></div>
@@ -318,9 +318,15 @@
 {% endif %} {% endblock %} {% block javascript %}
 <script src="/dist/js/ticket-type.js"></script>
 <script src="/datatables/js/datatables.min.js"></script>
+<script src="/moment/core-2.30.1/moment-core.js"></script>
+<script src="/moment/timezone-0.5.48-2025b/moment-timezone.js"></script>
 
 <script>
     $(document).ready(function () {
+        const eventDate = $("#eventDate");
+        const userTz = moment.tz.guess() || "Asia/Kolkata";
+        eventDate.text(moment("{{event.eventDate}}").tz(userTz).format("dddd, DD.MM.YYYY, hh:mm A"));
+
         let datatable = $("#datatable");
         datatable.DataTable({
             paging: true,
@@ -353,7 +359,12 @@
                 },
             },
             columns: [
-                { data: "createdAt" },
+                {
+                    data: function (row) {
+                        const userTz = moment.tz.guess() || "Asia/Kolkata";
+                        return moment(row.createdAt).tz(userTz).format("dddd, DD.MM.YYYY, hh:mm A");
+                    },
+                },
                 {
                     data: function (row) {
                         return `

@@ -43,11 +43,11 @@
                     </div>
                     <div class="mb-4">
                         <small class="text-muted">Event Date</small>
-                        <p class="h5 mb-0">{{ event.eventDateTime }}</p>
+                        <p class="h5 mb-0" id="eventDate">{{ event.eventDateTime }}</p>
                     </div>
                     <div>
                         <small class="text-muted">Tickets Generated At</small>
-                        <p class="h5 mb-0">{{ event.createdAt }}</p>
+                        <p class="h5 mb-0" id="ticketsGeneratedAt">{{ event.createdAt }}</p>
                     </div>
                 </div>
             </div>
@@ -90,9 +90,16 @@
 </div>
 
 {% endblock %} {% block javascript %}
+<script src="/moment/core-2.30.1/moment-core.js"></script>
+<script src="/moment/timezone-0.5.48-2025b/moment-timezone.js"></script>
 <script>
     $(document).ready(function () {
-        // Any additional JS if needed
+        const eventDate = $("#eventDate");
+        const ticketsGeneratedAt = $("#ticketsGeneratedAt");
+
+        const userTz = moment.tz.guess() || "Asia/Kolkata";
+        eventDate.text(moment("{{ event.eventDateTime }}").tz(userTz).format("dddd, DD.MM.YYYY, hh:mm A"));
+        ticketsGeneratedAt.text(moment("{{ event.createdAt }}").tz(userTz).format("dddd, DD.MM.YYYY, hh:mm A"));
     });
 </script>
 {% endblock %}

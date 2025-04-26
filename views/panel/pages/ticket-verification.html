@@ -17,7 +17,7 @@
                 </div>
                 <div class="col-12 col-md-6">
                     <p class="mb-1 text-muted">Event Date:</p>
-                    <h3 class="h6">{{ event.dateTime }}</h3>
+                    <h3 class="h6" id="eventDate">{{ event.dateTime }}</h3>
                 </div>
             </div>
         </div>
@@ -50,5 +50,13 @@
     </div>
 </div>
 {% endblock %} {% block javascript %}
-<!-- (Bootstrap 5.3.3 JS bundle is globally loaded) -->
+<script src="/moment/core-2.30.1/moment-core.js"></script>
+<script src="/moment/timezone-0.5.48-2025b/moment-timezone.js"></script>
+<script>
+    $(document).ready(function () {
+        const eventDate = $("#eventDate");
+        const userTz = moment.tz.guess() || "Asia/Kolkata";
+        eventDate.text(moment("{{event.dateTime}}").tz(userTz).format("dddd, DD.MM.YYYY, hh:mm A"));
+    });
+</script>
 {% endblock %}

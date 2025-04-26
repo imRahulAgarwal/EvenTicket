@@ -58,7 +58,7 @@
                     </div>
                     <div class="mb-2 border-bottom pb-2">
                         <small class="text-muted">Event Date</small>
-                        <h5 class="mb-0">{{ event.eventDate }}</h5>
+                        <h5 class="mb-0" id="eventDate">{{ event.eventDate }}</h5>
                     </div>
                     <div>
                         <small class="text-muted">Category</small>
@@ -168,6 +168,8 @@
 {% endblock %} {% block javascript %}
 <script src="/dist/js/ticket-type.js"></script>
 <script src="/datatables/js/datatables.min.js"></script>
+<script src="/moment/core-2.30.1/moment-core.js"></script>
+<script src="/moment/timezone-0.5.48-2025b/moment-timezone.js"></script>
 
 <script>
     $(document).ready(function () {
@@ -203,6 +205,10 @@
             let ttDesignModal = $("#designModal");
             ttDesignModal.modal("show");
         });
+
+        const eventDate = $("#eventDate");
+        const userTz = moment.tz.guess() || "Asia/Kolkata";
+        eventDate.text(moment("{{event.eventDate}}").tz(userTz).format("dddd, DD.MM.YYYY, hh:mm A"));
     });
 </script>
 

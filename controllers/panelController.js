@@ -1461,9 +1461,6 @@ export const ticketGeneratedBatchPage = asyncHandler(async (req, res, next) => {
 
     details = details[0];
 
-    // details.eventDate = dayjs(details.eventDate).format(dateTimeFormat);
-    // details.createdAt = dayjs(details.createdAt).format(dateTimeFormat);
-
     let data = {
         page: { title: "Generated Tickets Batch" },
         error: req.flash("error"),
@@ -1534,7 +1531,6 @@ export const renderBatchTicketTypePage = asyncHandler(async (req, res, next) => 
     }
 
     info = info[0];
-    // info.eventDate = dayjs(info.eventDate).format(dateTimeFormat);
 
     let data = {
         page: { title: `${info.ticketTypeName} Ticket Batch Overview` },
@@ -1868,7 +1864,7 @@ export const createTicketType = asyncHandler(async (req, res, next) => {
 
     const ticketTypeFolder = `uploads/events/${eventExists.id}/TicketTypes`;
     if (!fs.existsSync(ticketTypeFolder)) {
-        fs.mkdirSync(ticketTypeFolder);
+        fs.mkdirSync(ticketTypeFolder, { recursive: true });
     }
 
     const filePath = `${ticketTypeFolder}/${Date.now()}_${ticketTypeDesign.originalname.replaceAll(" ", "_")}`;

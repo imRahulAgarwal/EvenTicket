@@ -10,7 +10,7 @@
     <div class="card mb-4">
         <div class="card-body">
             <h5 class="card-title">Event: {{ data.eventName }}</h5>
-            <p class="card-text mb-1"><strong>Date:</strong> {{ data.eventDate }}</p>
+            <p class="card-text mb-1"><strong>Date:</strong> <span id="eventDate">{{ data.eventDate }}</span></p>
             <p class="card-text mb-1"><strong>Ticket Type:</strong> {{ data.ticketTypeName }}</p>
             <p class="card-text mb-0"><strong>Total Tickets:</strong> {{ data.ticketTypeCount }}</p>
         </div>
@@ -37,8 +37,14 @@
 </div>
 {% endblock %} {% block javascript %}
 <script src="/datatables/js/datatables.min.js"></script>
+<script src="/moment/core-2.30.1/moment-core.js"></script>
+<script src="/moment/timezone-0.5.48-2025b/moment-timezone.js"></script>
 <script>
     $(document).ready(function () {
+        const eventDate = $("#eventDate");
+        const userTz = moment.tz.guess() || "Asia/Kolkata";
+        eventDate.text(moment("{{ data.eventDate }}").tz(userTz).format("dddd, DD.MM.YYYY, hh:mm A"));
+
         $("#datatable").DataTable({
             paging: true,
             lengthChange: true,

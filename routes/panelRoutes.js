@@ -87,4 +87,6 @@ panelRouter.post("/panel-users", checkPermission("create_panel_users"), panel.cr
 panelRouter.post("/panel-users/update/:panelUserId", checkPermission("update_panel_users"), panel.updatePanelUser);
 panelRouter.post("/panel-users/delete/:panelUserId", checkPermission("delete_panel_users"), panel.deletePanelUser);
 
+panelRouter.get("/logout", panel.logout);
+
 export default panelRouter;
