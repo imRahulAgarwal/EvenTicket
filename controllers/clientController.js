@@ -10,6 +10,7 @@ import { hashPassword, comparePassword } from "../utils/password.js";
 import validateObjectId from "../schemas/objectId.js";
 import { changePasswordSchema, resetPasswordSchema } from "../schemas/password.js";
 import { Types } from "mongoose";
+import { fetchClientKpiMetrics, getEventsCountByCategory } from "../utils/clientDashboardService.js";
 
 const PAGE_LIMIT = 10;
 const TIME_ZONE = "Asia/Kolkata";
@@ -269,6 +270,12 @@ export const resetPassword = asyncHandler(async (req, res, next) => {
 });
 
 export const dashboardPage = asyncHandler(async (req, res, next) => {
+    const clientId = req.session.user.id;
+    const [kpiMetrics, eventsByCategory] = await Promise.all([
+        fetchClientKpiMetrics(clientId),
+        getEventsCountByCategory(clientId),
+    ]);
+
     const data = {
         page: { title: "EvenTicket Client Dashboard" },
         error: req.flash("error"),
@@ -283,6 +290,8 @@ export const dashboardPage = asyncHandler(async (req, res, next) => {
 
             return link;
         }),
+        kpiMetrics,
+        eventsByCategory,
     };
 
     return res.render("client/pages/dashboard", data);
@@ -400,11 +409,28 @@ export const readEvents = asyncHandler(async (req, res, next) => {
                     { $skip: start },
                     ...(length ? [{ $limit: length }] : []),
                     {
+                        $lookup: {
+                            from: "category",
+                            as: "category",
+                            localField: "categoryId",
+                            foreignField: "_id",
+                        },
+                    },
+                    {
                         $project: {
                             _id: 1,
                             name: 1,
                             dateTime: 1,
                             createdAt: 1,
+                            category: {
+                                $reduce: {
+                                    input: "$category",
+                                    initialValue: "",
+                                    in: {
+                                        $concat: ["$$value", "$$this.name"],
+                                    },
+                                },
+                            },
                         },
                     },
                 ],

@@ -12,6 +12,7 @@
             <tr>
                 <td>Event Name</td>
                 <td>Event Date</td>
+                <td>Event Category</td>
                 <td>Actions</td>
             </tr>
         </thead>
@@ -58,6 +59,7 @@
             columns: [
                 { data: "name" },
                 { data: "dateTime" },
+                { data: "category" },
                 {
                     data: function (row) {
                         let readUiBtn = `

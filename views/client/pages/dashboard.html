@@ -1,3 +1,225 @@
-{% extends "client/layout.html" %} {% block head %} {% endblock %} {% block body %}
-<div class="container py-3"></div>
-{% endblock %} {% block javascript %} {% endblock %}
+{% extends "client/layout.html" %} {% block head %}
+<style>
+    .hover-shadow {
+        transition: box-shadow 0.3s ease;
+    }
+    .hover-shadow:hover {
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1) !important;
+    }
+    .icon-circle {
+        width: 2.5rem;
+        height: 2.5rem;
+        background-color: rgba(0, 123, 255, 0.1);
+    }
+    .section-bg-1 {
+        background-color: #f0f8ff;
+    }
+    .section-bg-2 {
+        background-color: #fef9f4;
+    }
+    .section-bg-3 {
+        background-color: #f4f9f4;
+    }
+    .section-bg-4 {
+        background-color: #f9f4fa;
+    }
+    .card-body {
+        padding: 1rem !important;
+    }
+    .section-title {
+        margin-bottom: 1.5rem;
+        font-weight: 600;
+        color: #495057;
+    }
+</style>
+{% endblock %} {% block body %}
+<div class="container py-3">
+    <!-- EVENTS KPIs -->
+    <h4 class="section-title">Events Overview</h4>
+    <div class="row g-3 rounded mb-4 align-items-stretch">
+        <div class="col-12 col-lg-6 col-xl-3 d-flex">
+            <div class="card hover-shadow shadow-sm flex-fill h-100">
+                <div class="card-body d-flex gap-3 align-items-center">
+                    <div class="icon-circle d-flex justify-content-center align-items-center">
+                        <i class="fas fa-calendar-days fs-4 text-primary" aria-hidden="true"></i>
+                    </div>
+                    <div>
+                        <p class="mb-1 text-secondary small">Total Events</p>
+                        <strong>{{ kpiMetrics.totalClientEvents }}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-6 col-xl-3 d-flex">
+            <div class="card hover-shadow shadow-sm flex-fill h-100">
+                <div class="card-body d-flex gap-3 align-items-center">
+                    <div class="icon-circle d-flex justify-content-center align-items-center">
+                        <i class="fas fa-calendar-plus fs-4 text-primary" aria-hidden="true"></i>
+                    </div>
+                    <div>
+                        <p class="mb-1 text-secondary small">Events This Month</p>
+                        <strong>{{ kpiMetrics.totalClientEventsThisMonth }}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-6 col-xl-3 d-flex">
+            <div class="card hover-shadow shadow-sm flex-fill h-100">
+                <div class="card-body d-flex gap-3 align-items-center">
+                    <div class="icon-circle d-flex justify-content-center align-items-center">
+                        <i class="fas fa-calendar-check fs-4 text-primary" aria-hidden="true"></i>
+                    </div>
+                    <div>
+                        <p class="mb-1 text-secondary small">Upcoming Events (7 Days)</p>
+                        <strong>{{ kpiMetrics.totalClientEventsIn7Days }}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TICKET KPIs -->
+    <h4 class="section-title">Ticket Stats</h4>
+    <div class="row g-3 rounded mb-4 align-items-stretch">
+        <div class="col-12 col-lg-6 col-xl-3 d-flex">
+            <div class="card hover-shadow shadow-sm flex-fill h-100">
+                <div class="card-body d-flex gap-3 align-items-center">
+                    <div class="icon-circle d-flex justify-content-center align-items-center">
+                        <i class="fas fa-ticket-simple fs-4 text-primary" aria-hidden="true"></i>
+                    </div>
+                    <div>
+                        <p class="mb-1 text-secondary small">Total Tickets Generated</p>
+                        <strong>{{ kpiMetrics.totalTicketsGenerated }}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-6 col-xl-3 d-flex">
+            <div class="card hover-shadow shadow-sm flex-fill h-100">
+                <div class="card-body d-flex gap-3 align-items-center">
+                    <div class="icon-circle d-flex justify-content-center align-items-center">
+                        <i class="fas fa-ticket-alt fs-4 text-primary" aria-hidden="true"></i>
+                    </div>
+                    <div>
+                        <p class="mb-1 text-secondary small">Total Tickets Verified</p>
+                        <strong>{{ kpiMetrics.totalTicketsVerified }}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-6 col-xl-3 d-flex">
+            <div class="card hover-shadow shadow-sm flex-fill h-100">
+                <div class="card-body d-flex gap-3 align-items-center">
+                    <div class="icon-circle d-flex justify-content-center align-items-center">
+                        <i class="fas fa-ticket fs-4 text-primary" aria-hidden="true"></i>
+                    </div>
+                    <div>
+                        <p class="mb-1 text-secondary small">Generated Today</p>
+                        <strong>{{ kpiMetrics.totalTicketsGeneratedToday }}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-6 col-xl-3 d-flex">
+            <div class="card hover-shadow shadow-sm flex-fill h-100">
+                <div class="card-body d-flex gap-3 align-items-center">
+                    <div class="icon-circle d-flex justify-content-center align-items-center">
+                        <i class="fas fa-ticket fs-4 text-primary" aria-hidden="true"></i>
+                    </div>
+                    <div>
+                        <p class="mb-1 text-secondary small">Verified Today</p>
+                        <strong>{{ kpiMetrics.totalTicketsVerifiedToday }}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h4 class="section-title">Graphical Data</h4>
+    <div class="row g-4">
+        <!-- Events by Category -->
+        <div class="col-xl-4">
+            <div class="card" style="width: 100%; height: 320px">
+                <div class="card-header text-center py-2">
+                    <h6 class="mb-0">Events by Category</h6>
+                </div>
+                <div class="card-body p-2 d-flex justify-content-center align-items-center">
+                    <div class="chart-container" style="position: relative; width: 100%; height: 230px">
+                        <canvas id="pieCategory"></canvas>
+                        <div id="noDataCategory" class="text-center text-muted" style="display: none">
+                            No data available
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} {% block javascript %}
+<script src="/chartjs/js/chart.umd.js"></script>
+<script>
+    let catData = `{{ eventsByCategory | dump | safe }}`;
+    catData = JSON.parse(catData);
+
+    function buildPie(idCanvas, idNoData, labels, data, colors) {
+        const ctx = document.getElementById(idCanvas);
+        const noDataEl = document.getElementById(idNoData);
+
+        // If no data, hide canvas and show fallback
+        if (!data || data.length === 0 || data.every((v) => v === 0)) {
+            ctx.style.display = "none";
+            noDataEl.style.display = "block";
+            return;
+        }
+        noDataEl.style.display = "none";
+
+        new Chart(ctx, {
+            type: "pie",
+            data: {
+                labels,
+                datasets: [
+                    {
+                        data,
+                        backgroundColor: colors,
+                        borderColor: "#fff",
+                        borderWidth: 2,
+                    },
+                ],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: "bottom",
+                        labels: {
+                            boxWidth: 12,
+                            padding: 6,
+                            font: { size: 10 },
+                        },
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: (ctx) => `${ctx.label}: ${ctx.parsed}`,
+                        },
+                    },
+                },
+            },
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const paletteCategory = ["#4E79A7", "#F28E2C", "#E15759", "#76B7B2", "#59A14F"];
+        const paletteClient = ["#1F77B4", "#FF7F0E", "#2CA02C", "#D62728", "#9467BD"];
+        const paletteRole = ["#66C2A5", "#FC8D62", "#8DA0CB", "#E78AC3", "#A6D854"];
+
+        buildPie(
+            "pieCategory",
+            "noDataCategory",
+            catData.map((x) => x.name),
+            catData.map((x) => x.eventCount),
+            paletteCategory
+        );
+    });
+</script>
+{% endblock %}
