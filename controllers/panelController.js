@@ -1153,6 +1153,7 @@ export const createEvent = asyncHandler(async (req, res, next) => {
         await newTicketType.save();
     }
 
+    req.flash("success", "Event created successfully");
     return res.status(200).json({ success: true, message: "Event created successfully" });
 });
 
@@ -1273,6 +1274,7 @@ export const updateEvent = asyncHandler(async (req, res, next) => {
         return res.stauts(500).json({ success: false, error: "Internal server error" });
     }
 
+    req.flash("success", "Event details updated");
     return res.status(200).json({ success: true, message: "Event details updated" });
 });
 

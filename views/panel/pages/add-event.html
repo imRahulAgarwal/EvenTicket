@@ -490,7 +490,12 @@
             e.preventDefault();
             var formData = new FormData();
             formData.append("name", $("#eventName").val());
-            formData.append("date", $("#eventDateTime").val());
+
+            let date = $("#eventDateTime").val();
+            date = new Date(date);
+            const utcDateTime = date.toISOString();
+            formData.append("date", utcDateTime);
+
             formData.append("categoryId", $("#categoryId").val());
             formData.append("clientId", $("#clientId").val());
             formData.append("allowVerificationByClient", $("#allowVerificationByClient").is(":checked"));
@@ -514,7 +519,7 @@
                 processData: false,
                 contentType: false,
                 success: function (response) {
-                    toastr.success("Event created successfully!");
+                    window.location.replace("/panel/events");
                 },
                 error: function (xhr, status, error) {
                     let data = xhr.responseJSON;
